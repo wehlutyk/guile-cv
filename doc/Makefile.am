@@ -72,7 +72,9 @@ EXTRA_DIST = \
 	$(DOC_CSS)
 
 AM_MAKEINFOHTMLFLAGS = \
-	-c DOCTYPE='<!DOCTYPE html>' --css-ref=../css/manual.css
+	-c DOCTYPE='<!DOCTYPE html>'	\
+	-c FORMAT_MENU='menu'		\
+	--css-ref=../css/manual.css
 
 printenv:
 	printf '$(DOC_IMAGES)\n'
