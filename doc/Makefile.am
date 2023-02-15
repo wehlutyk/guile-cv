@@ -1,6 +1,6 @@
 
 ####
-#### Copyright (C) 2016 - 2021
+#### Copyright (C) 2016 - 2023
 #### Free Software Foundation, Inc.
 
 #### This file is part of GNU Guile-CV.
@@ -47,10 +47,11 @@ guile_cv_TEXINFOS = \
   cr-ip-idata.texi		\
   cr-ip-kdata.texi		\
   cr-ip-impex.texi		\
-  cr-ip-imgproc.texi		\
   cr-ip-features.texi		\
   cr-ip-texture.texi		\
-  cr-ip-filters.texi		\
+  cr-ip-filter.texi		\
+  cr-ip-process.texi		\
+  cr-ip-transform.texi		\
   cr-ip-morphology.texi		\
   cr-ip-segmentation.texi	\
   cr-ip-utils.texi		\

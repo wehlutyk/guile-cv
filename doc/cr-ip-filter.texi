@@ -1,11 +1,11 @@
 @c -*- mode: texinfo; coding: utf-8 -*-
 @c This is part of the GNU Guile-CV Reference Manual.
-@c Copyright (C) 2016 - 2018 Free Software Foundation, Inc.
+@c Copyright (C) 2016 - 2023 Free Software Foundation, Inc.
 @c See the file guile-cv.texi for copying conditions.
 
 
-@node Filters
-@subsection Filters
+@node Filter
+@subsection Filter
 
 The Guile-CV procedures and methods to filter images.
 

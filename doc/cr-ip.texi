@@ -1,6 +1,6 @@
 @c -*- mode: texinfo; coding: utf-8 -*-
 @c This is part of the GNU Guile-CV Reference Manual.
-@c Copyright (C) 2016 - 2021 Free Software Foundation, Inc.
+@c Copyright (C) 2016 - 2023 Free Software Foundation, Inc.
 @c See the file guile-cv.texi for copying conditions.
 
 
@@ -8,10 +8,11 @@
 * Image Structure and Accessors::
 * Kernel Structure and Accessors::
 * Import Export::
-* Processing::
 * Features::
 * Texture::
-* Filters::
+* Filter::
+* Process::
+* Transform::
 * Morphology::
 * Segmentation::
 * Utilities::
@@ -21,10 +22,11 @@
 @include cr-ip-idata.texi
 @include cr-ip-kdata.texi
 @include cr-ip-impex.texi
-@include cr-ip-imgproc.texi
 @include cr-ip-features.texi
 @include cr-ip-texture.texi
-@include cr-ip-filters.texi
+@include cr-ip-filter.texi
+@include cr-ip-process.texi
+@include cr-ip-transform.texi
 @include cr-ip-morphology.texi
 @include cr-ip-segmentation.texi
 @include cr-ip-utils.texi

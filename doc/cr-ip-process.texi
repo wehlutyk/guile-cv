@@ -1,0 +1,333 @@
+@c -*- mode: texinfo; coding: utf-8 -*-
+@c This is part of the GNU Guile-CV Reference Manual.
+@c Copyright (C) 2016 - 2023 Free Software Foundation, Inc.
+@c See the file guile-cv.texi for copying conditions.
+
+
+@node Process
+@subsection Process
+
+The Guile-CV procedures and methods to process images.
+
+@subheading Procedures
+
+@ifhtml
+@indentedblock
+@table @code
+@item @ref{im-add}
+@item @ref{im-add-channel}
+@item @ref{im-subtract}
+@item @ref{im-subtract-channel}
+@item @ref{im-mtimes}
+@item @ref{im-mtimes-channel}
+@item @ref{im-times}
+@item @ref{im-times-channel}
+@item @ref{im-divide}
+@item @ref{im-divide-channel}
+@item @ref{im-range}
+@item @ref{im-range-channel}
+@item @ref{im-min}
+@item @ref{im-min-channel}
+@item @ref{im-max}
+@item @ref{im-max-channel}
+@item @ref{im-map}
+@item @ref{im-map-channel}
+@item @ref{im-reduce}
+@item @ref{im-reduce-channel}
+@item @ref{im-normalize}
+@item @ref{im-normalize-channel}
+@item @ref{im-and}
+@item @ref{im-and-channel}
+@item @ref{im-or}
+@item @ref{im-or-channel}
+@item @ref{im-xor}
+@item @ref{im-xor-channel}
+@item @ref{im-particles}
+@item @ref{im-particle-clean}
+@end table
+@end indentedblock
+@end ifhtml
+
+
+@anchor{im-add}
+@anchor{im-add-channel}
+@deffn Method im-add image val
+@deffnx Method im-add i1 i2 i3 @dots{}
+@deffnx Method im-add-channel channel width height val
+@deffnx Method im-add-channel width height c1 c2 c3 @dots{}
+
+Returns a new image or channel.
+
+Performs the scalar addition of @var{image} with @var{val} or the matrix
+addition of @var{i1 i2 i3} @dots{} or @var{c1 c2 c3} @dots{}
+respectively.
+@end deffn
+
+
+@anchor{im-subtract}
+@anchor{im-subtract-channel}
+@deffn Method im-subtract image val
+@deffnx Method im-subtract i1 i2 i3 @dots{}
+@deffnx Method im-subtract-channel channel width height val
+@deffnx Method im-subtract-channel width height c1 c2 c3 @dots{}
+
+Returns a new image or channel.
+
+Performs the scalar subtraction of @var{image} with @var{val} or the
+matrix subtraction of @var{i1 i2 i3} @dots{} or @var{c1 c2 c3} @dots{}
+respectively.
+@end deffn
+
+
+@anchor{im-times}
+@anchor{im-times-channel}
+@deffn Method im-times image val
+@deffnx Method im-times i1 i2 i3 @dots{}
+@deffnx Method im-times-channel channel width height val
+@deffnx Method im-times-channel c1 w1 h1 c2 w2 h2 c3 w3 h3 @dots{}
+
+Returns a new image or channel.
+
+Performs the scalar multiplication of @var{image} with @var{val} or the
+element by element multiplication of @var{i1 i2 i3} @dots{} or @var{c1
+c2 c3} @dots{} respectively.
+@end deffn
+
+
+@cindex Matrix Multiplication
+@anchor{im-mtimes}
+@anchor{im-mtimes-channel}
+@deffn Procedure im-mtimes i1 i2 i3 @dots{}
+@deffnx Procedure im-mtimes-channel width height c1 c2 c3 @dots{}
+
+Returns a new image or channel.
+
+Performs matrix multiplication of @var{i1 i2 i3} @dots{} or @var{c1 w1
+h1 c2 w2 h2 c3 w3 h3} @dots{} recursively.  The number of lines of the
+next image must equal the number of columns of the previous intermediate
+result.
+@end deffn
+
+
+@anchor{im-divide}
+@anchor{im-divide-channel}
+@deffn Method im-divide image val
+@deffnx Method im-divide i1 i2 i3 @dots{}
+@deffnx Method im-divide-channel channel width height val
+@deffnx Method im-divide-channel c1 w1 h1 c2 w2 h2 c3 w3 h3 @dots{}
+
+Returns a new image or channel.
+
+Performs the scalar division of @var{image} with @var{val} or the
+element by element division of @var{i1 i2 i3} @dots{} or @var{c1 c2 c3}
+@dots{} respectively.
+
+It is the user responsibility to insure that none of the @var{c2 c3}
+@dots{} values is @code{zero}.
+@end deffn
+
+
+@cindex Matrix Division
+@anchor{im-mdivide}
+@anchor{im-mdivide-channel}
+@deffn Procedure im-mdivide i1 i2 i3 @dots{}
+@deffnx Procedure im-mdivide-channel width height c1 c2 c3 @dots{}
+
+Returns a new image or channel.
+
+Performs the matrix multiplication of @var{i1} or @var{c1} by the
+inverse of @var{i2 i3} @dots{} or @var{c2 c3} @dots{} recursively.
+The number of lines of the next image must equal the number of columns
+of the previous intermediate result@footnote{Technically speaking, there
+is no such thing as matrix division.  Dividing a matrix by another
+matrix is an undefined function.  The closest equivalent is to multiply
+the matrix by the inverse of the other matrix.}.
+
+It is the user responsibility to insure that none of the @var{c2 c3}
+@dots{} values is @code{zero}.
+@end deffn
+
+
+@anchor{im-range}
+@anchor{im-range-channel}
+@deffn Procedure im-range image
+@deffnx Procedure im-range-channel channel width
+
+Returns a list of six values @code{(min row col max row col)} if
+@var{image} is GRAY, and a list of list of these values if @var{image}
+is RGB or for any @code{n-chan > 1} images.
+@end deffn
+
+
+@anchor{im-min}
+@anchor{im-max}
+@anchor{im-min-channel}
+@anchor{im-max-channel}
+@deffn Procedure im-min image
+@deffnx Procedure im-max image
+@deffnx Procedure im-min-channel channel width
+@deffnx Procedure im-max-channel channel width
+
+Returns three multiple values if @var{image} is GRAY: @code{min row col}
+or @code{max row col} respectively.  If @var{image} is RGB or for any
+@code{n-chan > 1} images, it returns a list of list of these values.
+@end deffn
+
+
+@anchor{im-map}
+@anchor{im-map-channel}
+@deffn Procedure im-map proc i1 i2 i3 @dots{}
+@deffnx Procedure im-map-channel proc width height c1 c2 c3 @dots{}
+
+Returns a new image or channel.
+
+Apply @var{proc} to each pixel value of each channel of @var{i1} (if
+only two arguments are given), or to the corresponding pixel values of
+each channels of i1 i2 i3 @dots{} (if more than two arguments are
+given).
+@end deffn
+
+
+@anchor{im-reduce}
+@anchor{im-reduce-channel}
+@deffn Procedure im-reduce image proc default
+@deffnx Procedure im-reduce-channel channel proc default
+
+Returns one value if @var{image} is GRAY.  If @var{image} is RGB or for
+any @code{n-chan > 1}, it returns a list of values.
+
+If @var{image} is empty, @code{im-reduce} returns @var{default} (this is
+the only use for default).  If @var{image} has only one pixel, then the
+pixel value is what is returned.  Otherwise, @var{proc} is called on the
+pixel values of @var{image}.
+
+Each @var{proc} call is @code{(proc elem prev)}, where @code{elem} is a
+pixel value from the channel (the second and subsequent pixel values of
+the channel), and @code{prev} is the returned value from the previous
+call to @var{proc}. The first pixel value - for each channel - is the
+@code{prev} for the first call to @code{proc}.
+
+For example:
+
+@lisp
+,use (cv)
+(im-load "edx.png")
+@print{}
+$2 = (128 128 1 (#f32(4.0 26.0 102.0 97.0 58.0 10.0 9.0 21.0 # …)))
+(im-reduce $2 + 0)
+@print{}
+$3 = 556197.0
+@end lisp
+
+@end deffn
+
+
+@anchor{im-normalize}
+@anchor{im-normalize-channel}
+@deffn Procedure im-normalize image [#:value 255.0]
+@deffnx Procedure im-normalize-channel channel width height [#:value 255.0]
+
+Returns a new normalized image or channel.
+
+Normalizing an @var{image} or a @var{channel} consist of dividing all
+pixels by a value so they all fall in the @code{[0.0 -> 1.0]} range. The
+default @var{#:value} is @code{255.0}.
+@end deffn
+
+
+@anchor{im-and}
+@anchor{im-and-channel}
+@anchor{im-or}
+@anchor{im-or-channel}
+@anchor{im-xor}
+@anchor{im-xor-channel}
+@deffn Procedure im-and i1 i2 i3 @dots{}
+@deffnx Procedure im-and-channel width height c1 c2 c3 @dots{}
+@deffnx Procedure im-or i1 i2 i3 @dots{}
+@deffnx Procedure im-or-channel width height c1 c2 c3 @dots{}
+@deffnx Procedure im-xor i1 i2 i3 @dots{}
+@deffnx Procedure im-xor-channel width height c1 c2 c3 @dots{}
+
+Returns @var{image} if one argument only, otherwise, it returns a new
+image or channel, as the result of computing the logical @code{AND},
+@code{OR} or @code{XOR} of all images or channels.
+
+In the case of @code{AND}, for all positive results, the pixel values
+(of each channel) of the new image are set to the one obtained from
+@var{i1} or @var{c1} respectively, and @code{0.0} otherwise.
+
+In the case of @code{OR}, the pixel values (of each channel) of the new
+image are set to the one obtained from the first non zero @var{ii} or
+@var{ci} respectively, otherwise it is set to @code{0.0}.
+
+In the case of @code{XOR}, the pixel values (of each channel) of the new
+image are set to the value obtained from successively computing
+@code{(logior (logand a (- 255 b)) (logand (- 255 a) b))} where @code{a}
+would be the previous result and @code{b} the current @code{image} or
+@code{channel} pixel value, until all images passed in arguments have
+been processed@footnote{Note that there is no mathematically valid
+@code{XOR} operation on floating points, hence as they are
+@samp{accessed}, pixel values are converted to integer, using
+@code{float->int}, defined in the @code{(cv support libguile-cv)}
+module).}.
+
+All images must have the same @code{width}, @code{height} and
+@code{n-channel}.
+
+There are, of course, scientific use and examples of images logical
+@code{XOR}, and that is why @uref{@value{UGUILE-CV}, Guile-CV} is being
+developed for, but let's have a bit of fun here, and see if our
+levitating GNU likes apples!
+
+@ifnottex
+@image{images/emacs-1,,,emacs-1,png}
+@end ifnottex
+
+@c @indentedblock
+@c You want to have some fun? @code{:-)}
+
+@c Try @code{(im-xor img-1 igm-2)}, then @code{(im-xor img-1 igm-2 img-2)},
+@c the result of which being @code{img-1} (a mathematical proprety of the
+@c @code{XOR} operation of course, but its fun to see it @samp{in action}.
+@c @end indentedblock
+@end deffn
+
+
+@anchor{im-particles}
+@deffn Procedure im-particles image features [#:clean #t]
+@c @cindex Image split
+@cindex Image Particles
+
+Returns two values, a list of images (the particles) and a list of their
+bounding boxes in the original @var{image}.
+
+Each returned image is a @samp{particle}, which is a subpart of
+@var{image} determined by its bounding box, given by the @code{left}
+@code{top} @code{right} @code{bottom} values of the corresponding
+@samp{entry} in @var{features} (see @ref{im-features} for a complete
+description of a feature value list.
+
+When @var{#:clean} is @code{#t}, which is the default,
+@ref{im-particle-clean} is called upon each particle (see below for a
+description of the expected result).
+@end deffn
+
+
+@anchor{im-particle-clean}
+@deffn Procedure im-particle-clean particle
+
+Returns a new image.
+
+Cleaning a @var{particle} (which is an image) means detecting and
+removing any object(s) that is(are) not connected to the
+@samp{particle} itself.
+
+This procedure is based on the property that in a @samp{particle}, which
+is an (sub)image resulting from a @ref{im-crop} based on the bounding
+box coordinates as returned by @code{im-features}, there precisely is
+one object that, if you call @code{im-features} upon @var{particle},
+would have its bounding box coordinates being the entire
+@var{particle}. In other words, if you call @code{im-particle-clean}
+upon an image that is not a @samp{particle}, the result will just be a
+black image.
+@end deffn
