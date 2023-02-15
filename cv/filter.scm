@@ -1,7 +1,7 @@
 ;; -*- mode: scheme; coding: utf-8 -*-
 
 ;;;;
-;;;; Copyright (C) 2016 - 2019
+;;;; Copyright (C) 2016 - 2023
 ;;;; Free Software Foundation, Inc.
 
 ;;;; This file is part of GNU Guile-CV.
@@ -26,7 +26,7 @@
 ;;; Code:
 
 
-(define-module (cv filters)
+(define-module (cv filter)
   #:use-module (oop goops)
   #:use-module (system foreign)
   #:use-module (ice-9 match)

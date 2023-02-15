@@ -1,7 +1,7 @@
 ;; -*- mode: scheme; coding: utf-8 -*-
 
 ;;;;
-;;;; Copyright (C) 2016 - 2021
+;;;; Copyright (C) 2016 - 2023
 ;;;; Free Software Foundation, Inc.
 
 ;;;; This file is part of GNU Guile-CV.
@@ -53,16 +53,17 @@
   #:use-module (cv idata)
   #:use-module (cv kdata)
   #:use-module (cv impex)
+  #:use-module (cv utils)
+  #:use-module (cv features)
+  #:use-module (cv texture)
+  #:use-module (cv filter)
   #:use-module (cv imgproc)
   #:use-module (cv adds)
   #:use-module (cv compose)
   #:use-module (cv histogram)
-  #:use-module (cv features)
-  #:use-module (cv texture)
-  #:use-module (cv filters)
   #:use-module (cv morphology)
   #:use-module (cv segmentation)
-  #:use-module (cv utils)
+
 
   #:duplicates (merge-generics
 		replace
@@ -98,13 +99,13 @@
 			      (cv idata)
                               (cv kdata)
 			      (cv impex)
+			      (cv utils)
+                              (cv features)
+                              (cv texture)
+			      (cv filter)
 			      (cv imgproc)
                               (cv adds)
                               (cv compose)
                               (cv histogram)
-                              (cv features)
-                              (cv texture)
-			      (cv filters)
 			      (cv morphology)
-			      (cv segmentation)
-			      (cv utils)))
+			      (cv segmentation)))

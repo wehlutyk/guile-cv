@@ -1,6 +1,6 @@
 
 ####
-#### Copyright (C) 2016 - 2019
+#### Copyright (C) 2016 - 2023
 #### Free Software Foundation, Inc.
 
 #### This file is part of GNU Guile-CV.
@@ -47,14 +47,14 @@ SOURCES = \
 	cv/kdata.scm				\
 	cv/impex.scm				\
 	cv/utils.scm				\
+	cv/features.scm				\
+	cv/texture.scm				\
+	cv/filter.scm				\
 	cv/imgproc.scm				\
 	cv/segmentation.scm			\
-	cv/features.scm				\
 	cv/adds.scm				\
 	cv/compose.scm				\
 	cv/histogram.scm			\
-	cv/texture.scm				\
-	cv/filters.scm				\
 	cv/morphology.scm			\
 	cv.scm
 
