@@ -9,13 +9,29 @@
 
 The Guile-CV procedures and methods related to image texture measures.
 
-First described here@footnote{R. M. Haralick, K. Shanmugam, and
-I. Dinstein, Textural Features of Image Classification, IEEE
-Transactions on Systems, Man and Cybernetics, vol. SMC-3, no. 6,
-Nov. 1973.}, image texture measures are still very @samp{actual}, with
-new research and practicle applications in many areas, as described in
-this (highly recommended) document@footnote{M. Hall-Beyer, GLCM Texture:
-A Tutorial v. 3.0 March 2017}.
+
+@subheading Procedures
+
+@ifhtml
+@indentedblock
+@table @code
+@item @ref{im-texture}
+@item @ref{im-glcp}
+@item @ref{im-glcm}
+@end table
+@end indentedblock
+@end ifhtml
+
+
+@subheading Description
+
+Although introduced a long time ago@footnote{R. M. Haralick,
+K. Shanmugam, and I. Dinstein, Textural Features of Image
+Classification, IEEE Transactions on Systems, Man and Cybernetics,
+vol. SMC-3, no. 6, Nov. 1973.}, image texture measures are still very
+actual, with new research and practicle applications in many areas, as
+described in this (highly recommended) document@footnote{M. Hall-Beyer,
+GLCM Texture: A Tutorial v. 3.0 March 2017}.
 
 Image texture measures are @samp{descriptive statistics}, derived from
 the @samp{Gray Level Co-occurrence Matrices (GLCM)} and its associated
@@ -41,17 +57,6 @@ of course).
 
 
 @subheading Procedures
-
-@ifhtml
-@indentedblock
-@table @code
-@item @ref{im-texture}
-@item @ref{im-glcp}
-@item @ref{im-glcm}
-@end table
-@end indentedblock
-@end ifhtml
-
 
 @anchor{im-texture}
 @deffn Procedure im-texture image n-gl [#:dist 1] [#:p-max 255] @

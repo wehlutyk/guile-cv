@@ -1,17 +1,65 @@
 @c -*- mode: texinfo; coding: utf-8 -*-
 @c This is part of the GNU Guile-CV Reference Manual.
-@c Copyright (C) 2016 - 2018 Free Software Foundation, Inc.
+@c Copyright (C) 2016 - 2023 Free Software Foundation, Inc.
 @c See the file guile-cv.texi for copying conditions.
 
 
 @node Image Structure and Accessors
 @subsection Image Structure and Accessors
 
-The Guile-CV procedures and methods related to images data structure,
+The Guile-CV procedures and methods related to image data structure,
 creating, accessing and copying images.
 
 
-@subheading Image Data Structure
+@subheading Procedures
+
+@ifhtml
+@indentedblock
+@table @code
+@item @ref{im-make}
+@item @ref{im-make-channel}
+@item @ref{im-make-channels}
+
+@item @ref{im-copy}
+@item @ref{im-copy-channel}
+
+@item @ref{im-size_}
+@item @ref{im-width_}
+@item @ref{im-height_}
+@item @ref{im-n-channel_}
+@item @ref{im-channels_}
+@item @ref{im-channel}
+
+@item @ref{im-image?}
+@item @ref{im-gray?_}
+@item @ref{im-rgb?_}
+
+@item @ref{im-binary?}
+@item @ref{im-binary-channel?}
+
+@item @ref{im-=?}
+@item @ref{im-=-channel?}
+
+@item @ref{im-ref}
+@item @ref{im-fast-ref}
+@item @ref{im-set!}
+@item @ref{im-fast-set!}
+
+@item @ref{im-channel-offset}
+@item @ref{im-fast-channel-offset}
+
+@item @ref{im-channel-ref}
+@item @ref{im-fast-channel-ref}
+@item @ref{im-channel-set!}
+@item @ref{im-fast-channel-set!}
+
+@item @ref{im-collect}
+@end table
+@end indentedblock
+@end ifhtml
+
+
+@subheading Description
 
 A Guile-CV image is represented by a list containing the following
 elements:
@@ -65,52 +113,6 @@ others, the public interface of @code{(ice-9 match)}.
 
 
 @subheading Procedures
-
-@ifhtml
-@indentedblock
-@table @code
-@item @ref{im-make}
-@item @ref{im-make-channel}
-@item @ref{im-make-channels}
-
-@item @ref{im-copy}
-@item @ref{im-copy-channel}
-
-@item @ref{im-size_}
-@item @ref{im-width_}
-@item @ref{im-height_}
-@item @ref{im-n-channel_}
-@item @ref{im-channels_}
-@item @ref{im-channel}
-
-@item @ref{im-image?}
-@item @ref{im-gray?_}
-@item @ref{im-rgb?_}
-
-@item @ref{im-binary?}
-@item @ref{im-binary-channel?}
-
-@item @ref{im-=?}
-@item @ref{im-=-channel?}
-
-@item @ref{im-ref}
-@item @ref{im-fast-ref}
-@item @ref{im-set!}
-@item @ref{im-fast-set!}
-
-@item @ref{im-channel-offset}
-@item @ref{im-fast-channel-offset}
-
-@item @ref{im-channel-ref}
-@item @ref{im-fast-channel-ref}
-@item @ref{im-channel-set!}
-@item @ref{im-fast-channel-set!}
-
-@item @ref{im-collect}
-@end table
-@end indentedblock
-@end ifhtml
-
 
 @anchor{im-make}
 @anchor{im-make-channel}

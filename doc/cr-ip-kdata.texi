@@ -1,17 +1,46 @@
 @c -*- mode: texinfo; coding: utf-8 -*-
 @c This is part of the GNU Guile-CV Reference Manual.
-@c Copyright (C) 2016 - 2018 Free Software Foundation, Inc.
+@c Copyright (C) 2016 - 2023 Free Software Foundation, Inc.
 @c See the file guile-cv.texi for copying conditions.
 
 
 @node Kernel Structure and Accessors
 @subsection Kernel Structure and Accessors
 
-The Guile-CV procedures and methods related to kernels data structure,
+The Guile-CV procedures and methods related to kernel data structure,
 creating and accessing kernels.
 
 
-@subheading Kernel Data Structure
+@subheading Procedures
+
+@ifhtml
+@indentedblock
+@table @code
+@item @ref{k-make}
+@item @ref{k-make-circular-mask}
+
+@item @ref{k-width}
+@item @ref{k-height}
+@item @ref{k-size}
+@item @ref{k-channel}
+
+@item @ref{kernel?}
+
+@item @ref{k-ref}
+@item @ref{k-fast-ref}
+@item @ref{k-set!}
+@item @ref{k-fast-set!}
+
+@item @ref{k-offset}
+@item @ref{k-fast-offset}
+
+@item @ref{k-display}
+@end table
+@end indentedblock
+@end ifhtml
+
+
+@subheading Description
 
 A Guile-CV @uref{@value{UKERNEL}, kernel} is represented by a list
 containing the following elements:
@@ -58,33 +87,6 @@ an existing one, see the @code{(cv kdata)} module.
 
 
 @subheading Procedures
-
-@ifhtml
-@indentedblock
-@table @code
-@item @ref{k-make}
-@item @ref{k-make-circular-mask}
-
-@item @ref{k-width}
-@item @ref{k-height}
-@item @ref{k-size}
-@item @ref{k-channel}
-
-@item @ref{kernel?}
-
-@item @ref{k-ref}
-@item @ref{k-fast-ref}
-@item @ref{k-set!}
-@item @ref{k-fast-set!}
-
-@item @ref{k-offset}
-@item @ref{k-fast-offset}
-
-@item @ref{k-display}
-@end table
-@end indentedblock
-@end ifhtml
-
 
 @anchor{k-make}
 @deffn Procedure k-make width height [values #f] [norm #f]
