@@ -1,7 +1,7 @@
 ;; -*- mode: scheme; coding: utf-8 -*-
 
 ;;;;
-;;;; Copyright (C) 2016 - 2019
+;;;; Copyright (C) 2016 - 2023
 ;;;; Free Software Foundation, Inc.
 
 ;;;; This file is part of GNU Guile-CV.
@@ -26,28 +26,40 @@
 ;;; Code:
 
 
-(define-module (cv imgproc)
+(define-module (cv transform)
   #:use-module (oop goops)
   #:use-module (system foreign)
   #:use-module (ice-9 match)
+  #:use-module (ice-9 receive)
   #:use-module (ice-9 threads)
   #:use-module (srfi srfi-1)
   #:use-module (cv init)
   #:use-module (cv support)
   #:use-module (cv idata)
-  
+  #:use-module (cv features)
+  #:use-module (cv utils)
+  #:use-module (cv segmentation)
+
   #:duplicates (merge-generics
 		replace
 		warn-override-core
 		warn
 		last)
 
-  #:export (im-resize
+  #:export (im-rgb->gray
+            im-rgba->rgb
+            im-rgba->gray
+            im-resize
 	    im-resize-channel
 	    im-rotate
 	    im-rotate-channel
 	    im-flip
 	    im-flip-channel
+            im-invert
+            im-invert-channel
+            im-transpose
+            im-transpose-channel
+            im-complement
 	    im-crop-size
 	    im-crop
 	    im-crop-channel
@@ -62,7 +74,10 @@
             im-local-minima
             im-local-minima-channel
             im-local-maxima
-            im-local-maxima-channel))
+            im-local-maxima-channel
+            im-threshold
+            im-scrap
+            im-scrap-channel))
 
 
 #;(g-export )
@@ -71,6 +86,167 @@
 ;;;
 ;;; Guile-CV API
 ;;;
+
+#;(define (im-rgb->gray image)
+  (match image
+    ((width height n-chan idata)
+     (match idata
+       ((c)
+        image)
+       ((r g b)
+        (receive (c-chan extra)
+            (im-rgb->gray-1 width height r g b)
+          (values (list width height 1 (list c-chan))
+                  extra)))
+       (else
+	(error "Not an RGB (nor a GRAY) image."))))))
+
+(define (im-rgb->gray image)
+  (match image
+    ((width height n-chan idata)
+     (match idata
+       ((c)
+        image)
+       ((r g b)
+        (list width height 1
+              (list (im-rgb->gray-1 width height r g b))))
+       (else
+	(error "Not an RGB (nor a GRAY) image."))))))
+
+(define (im-rgb->gray-1 width height r g b)
+  (let ((n-cell (* width height))
+        (to (im-make-channel width height)))
+    (f32vector-rgb-to-gray to n-cell r g b)
+    to))
+
+#;(define (im-rgb->gray-1 width height r g b)
+  (letrec* ((rgb->gray (lambda (i)
+                         (/ (+ (f32vector-ref r i)
+                               (f32vector-ref g i)
+                               (f32vector-ref b i))
+                            3)))
+            (to (im-make-channel width height))
+            (n-cell (* width height))
+            (proc (lambda (range)
+                    (match range
+                      ((start end)
+                       (let ((k0 (rgb->gray start)))
+                         (let loop ((i (+ start 1))
+                                    (mini k0)
+                                    (maxi k0)
+                                    (total k0))
+                           (if (= i end)
+                               (list mini maxi total)
+                               (let ((k (rgb->gray i)))
+                                 (f32vector-set! to i k)
+                                 (loop (+ i 1)
+                                       (min mini k)
+                                       (max maxi k)
+                                       (+ total k)))))))))))
+    (if (%use-par-map)
+        (let ((vals (par-map proc
+                         (n-cell->per-core-start-end n-cell))))
+          (values to
+                  (list (apply min (map car vals))
+                        (apply max (map cadr vals))
+                        (/ (reduce + 0 (map caddr vals)) n-cell)
+                        n-cell)))
+        (match (proc (list 0 n-cell))
+          ((mini maxi total)
+           (values to
+                   (list mini
+                         maxi
+                         (/ total n-cell)
+                         n-cell)))))))
+
+#;(define (im-rgb->gray-1 width height r g b)
+  (letrec* ((rgb->gray (lambda (i)
+                         (/ (+ (f32vector-ref r i)
+                               (f32vector-ref g i)
+                               (f32vector-ref b i))
+                            3)))
+            (n-cell (* width height))
+            (to (make-f32vector n-cell 0.0))
+            (k0 (rgb->gray 0))
+            (t0 (f32vector-set! to 0 k0)))
+    (let loop ((i 1)
+               (mini k0)
+               (maxi k0)
+               (total k0))
+      (if (= i n-cell)
+          (values to
+                  mini
+                  maxi
+                  (/ total n-cell))
+          (let ((k (rgb->gray i)))
+            (f32vector-set! to i k)
+            (loop (+ i 1)
+                  (min mini k)
+                  (max maxi k)
+                  (+ total k)))))))
+
+#!
+Source => Target = (BGColor + Source) =
+Target.R = ((1 - Source.A) * BGColor.R) + (Source.A * Source.R)
+Target.G = ((1 - Source.A) * BGColor.G) + (Source.A * Source.G)
+Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
+!#
+
+(define* (im-rgba->rgb image #:key (bg '(0.0 0.0 0.0)))
+  (let ((%im-normalize-channel
+         (@ (cv process) im-normalize-channel)))
+    (match bg
+      ((bg-r bg-g bg-b)
+       (match image
+         ((width height n-chan idata)
+          (case n-chan
+            ((4)
+             (match idata
+               ((r g b a)
+                (let ((a-norm (%im-normalize-channel a width height)))
+                  (list width height 3
+                        (let ((map-proc (if (%use-par-map) par-map map)))
+                          (map-proc (lambda (vals)
+                                      (match vals
+                                        ((c bg)
+                                         (im-rgba-channel->rgb-channel c width height
+                                                                       a-norm #:bg bg))))
+                              (list (list r bg-r)
+                                    (list g bg-g)
+                                    (list b bg-b)))))))))
+            (else
+             (error "Not an RGBA image."))))))
+      (else
+       (error "Invalid background color: " bg)))))
+
+(define* (im-rgba-channel->rgb-channel c width height a-norm #:key (bg 0.0))
+  (let* ((%im-normalize-channel
+          (@ (cv process) im-normalize-channel))
+         (c-norm (%im-normalize-channel c width height))
+         (bg-norm (/ bg 255.0))
+         (to (im-make-channel width height))
+         (n-cell (* width height)))
+    (do ((i 0
+	    (+ i 1)))
+	((= i n-cell))
+      (f32vector-set! to i
+                      (* (if (= bg 0.0)
+                             (* (f32vector-ref a-norm i) (f32vector-ref c-norm i))
+                             (+ (* (- 1.0 (f32vector-ref a-norm i)) bg-norm)
+                                (* (f32vector-ref a-norm i) (f32vector-ref c-norm i))))
+                         255.0)))
+    to))
+
+(define* (im-rgba->gray image #:key (bg '(0.0 0.0 0.0)))
+  (match image
+    ((_ _ n-chan idata)
+     (case n-chan
+       ((3 1)
+        (im-rgb->gray image))
+       ((4)
+        (im-rgb->gray (im-rgba->rgb image #:bg bg)))
+       (else
+	(error "Not an RGBA (nor an RGB neither a GRAY) image."))))))
 
 (define* (im-resize image new-w new-h
 		    #:key (i-mode 'bilinear))
@@ -161,6 +337,61 @@
     ((both) 3)
     (else
      (error "No such flip plane: " plane))))
+
+(define (im-invert image)
+  (match image
+    ((width height n-chan idata)
+     (list width height n-chan
+           (let ((map-proc (if (and (> n-chan 1)
+                                    (%use-par-map)) par-map map)))
+	     (map-proc (lambda (channel)
+			 (im-invert-channel channel width height))
+                       idata))))))
+
+(define (im-invert-channel channel width height)
+  (let ((to (im-make-channel width height))
+        (n-cell (* width height)))
+    (f32vector-invert channel to #:n-cell n-cell)
+    to))
+
+(define (im-transpose image)
+  (match image
+    ((width height n-chan idata)
+     (list height width n-chan
+           (let ((map-proc (if (and (> n-chan 1)
+                                    (%use-par-map)) par-map map)))
+	     (map-proc (lambda (channel)
+			 (im-transpose-channel channel width height))
+	       idata))))))
+
+#;(define (im-transpose-channel channel width height)
+  (let ((t-width height)
+        (to (im-make-channel height width)))
+    (do ((i 0
+	    (+ i 1)))
+	((= i height))
+      (do ((j 0
+	      (+ j 1)))
+	  ((= j width))
+        (im-fast-channel-set! to j i t-width
+                              (im-fast-channel-ref channel i j width))))
+    to))
+
+(define (im-transpose-channel channel width height)
+  (let ((to (im-make-channel height width)))
+    (f32vector-transpose channel width height to)
+    to))
+
+(define (im-complement image)
+  (match image
+    ((width height n-chan idata)
+     (list width height n-chan
+           (let ((map-proc (if (and (> n-chan 1)
+                                    (%use-par-map)) par-map map)))
+	     (map-proc
+	      (lambda (channel)
+		(f32vector-complement channel))
+	      idata))))))
 
 (define (im-crop-size width height left top right bottom)
   (let ((new-w (- right left))
@@ -361,6 +592,150 @@
       ((0) to)
       (else
        (error "Local maxima failed.")))))
+
+#!
+(define* (im-threshold image threshold #:key (bg 'black))
+  (if (and (>= threshold 0.0)
+	   (<= threshold 255.0))
+      (match image
+	((width height n-chan idata)
+         (letrec* ((test (case bg
+                           ((black) >=)
+                           ((white) <=)
+                           (else
+                            (error "Invalid background: " bg))))
+                   (pred (match idata
+                           ((r g b)
+                            (lambda (i threshold)
+                              (test (/ (+ (f32vector-ref r i)
+                                          (f32vector-ref g i)
+                                          (f32vector-ref b i))
+                                       3)
+                                    threshold)))
+                           ((c)
+                            (lambda (i threshold)
+                              (test (f32vector-ref c i) threshold)))
+                           (else
+                            (error "Not a GRAY, RGB, nor an RGBA image."))))
+                   (to (im-make-channel width height))
+                   (n-cell (* width height))
+                   (proc (lambda (range)
+                           (match range
+                             ((start end)
+                              (do ((i start
+                                      (+ i 1)))
+                                  ((= i end))
+                                (when (pred i threshold)
+                                  (f32vector-set! to i 255.0))))))))
+           (if (%use-par-map)
+               (par-for-each proc (n-cell->per-core-start-end n-cell))
+               (proc (list 0 n-cell)))
+           (list width height 1 (list to)))))
+      (error "Invalid threshold: " threshold)))
+!#
+
+(define* (im-threshold image threshold #:key (bg 'black))
+  (if (and (>= threshold 0.0)
+	   (<= threshold 255.0))
+        (match image
+          ((width height n-chan idata)
+           (let ((to (im-make-channel width height))
+                 (n-cell (* width height)))
+             (list width height 1
+                   (list (f32vector-threshold to n-cell idata threshold
+                                              (case bg
+                                                ((black) 0)
+                                                ((white) 255)
+                                                (else
+                                                 (error "No such bg: " bg)))))))))
+      (error "Invalid threshold: " threshold)))
+
+(define* (im-scrap image val #:key (pred <) (con 8) (bg 'black) (exclude-on-edges #f))
+  ;; (im-binary? image) is rather expensive
+  (match image
+    ((width height n-chan idata)
+     ;; so we only check for n-chan
+     (match idata
+       ((channel)
+        (receive (l-image n-label)
+            (im-label image #:con con #:bg bg)
+          (match l-image
+            ((_ _ _ l-idata)
+             (match l-idata
+               ((l-channel)
+                (let* ((features (im-features image l-image #:n-label n-label))
+                       (n-feature (length features))
+                       (to-scrap (fold (lambda (feature i prev)
+                                         (match feature
+                                           ((area left top right bottom . rest)
+                                            (if (and (not (= i 0))
+                                                     (or (pred area val)
+                                                         (and exclude-on-edges
+                                                              (or (= left 0)
+                                                                  (= top 0)
+                                                                  (= right (- width 1))
+                                                                  (= bottom (- height 1))))))
+                                                (cons i prev)
+                                                prev))))
+                                       '()
+                                       features
+                                       (iota n-feature))))
+                  (list width height 1
+                        (list (im-scrap-channel channel l-channel width height
+                                                to-scrap n-label))))))))))
+       (else
+        (error "Not a binary image."))))))
+
+(define (scrap-cache to-scrap n-label)
+  (let ((n-scrap (length to-scrap))
+        (cache (make-s32vector n-label 0)))
+    (do ((i 0
+            (+ i 1)))
+	((= i n-scrap))
+      (s32vector-set! cache (list-ref to-scrap i) 1))
+    cache))
+
+(define (im-scrap-channel channel l-channel width height to-scrap n-label)
+  (let* ((to (im-copy-channel channel width height))
+         (n-cell (* width height))
+         (cache (scrap-cache to-scrap n-label)))
+    (f32vector-scrap channel l-channel n-cell cache to)
+    to))
+
+#!
+
+;; ok for small images, but too slow otherwise so, till Guile-3.0, I
+;; have to do this in C instead which is fine anyway, because memory is
+;; allocated on the scheme side. Let's keep these for now, once
+;; Guile-3.0 is out, it will be nice to try and compare with those
+;; versions hsing libgule-cv.
+
+(define (scrap-cache to-scrap n-label)
+  (let ((n-scrap (length to-scrap))
+        (cache (make-vector n-label #f)))
+    (do ((i 0
+            (+ i 1)))
+	((= i n-scrap))
+      (vector-set! cache (list-ref to-scrap i) #t))
+    cache))
+
+(define (im-scrap-channel channel l-channel width height to-scrap n-label)
+  (let* ((to (im-copy-channel channel width height))
+         (n-cell (* width height))
+         (cache (scrap-cache to-scrap n-label)))
+    (do ((i 0
+	    (+ i 1)))
+	((= i n-cell))
+      (let ((val #;(inexact->exact (f32vector-ref l-channel i))
+                 (float->int (f32vector-ref l-channel i))))
+        (f32vector-set! to i
+                        (if (or (zero? val)
+                                (vector-ref cache val))
+                            0.0
+                            (f32vector-ref channel i)))))
+    to))
+
+!#
 
 
 ;;;

@@ -1,7 +1,7 @@
 ;; -*- mode: scheme; coding: utf-8 -*-
 
 ;;;;
-;;;; Copyright (C) 2016 - 2018
+;;;; Copyright (C) 2016 - 2023
 ;;;; Free Software Foundation, Inc.
 
 ;;;; This file is part of GNU Guile-CV.
@@ -33,12 +33,11 @@
   #:use-module (ice-9 receive)
   #:use-module (ice-9 threads)
   #:use-module (srfi srfi-1)
-  #:use-module (search basic)
   #:use-module (cv init)
   #:use-module (cv support)
   #:use-module (cv idata)
-  #:use-module (cv imgproc)
-  #:use-module (cv adds)
+  #:use-module (cv transform)
+  #:use-module (cv process)
   
   #:duplicates (merge-generics
 		replace

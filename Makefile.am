@@ -47,15 +47,16 @@ SOURCES = \
 	cv/kdata.scm				\
 	cv/impex.scm				\
 	cv/utils.scm				\
-	cv/features.scm				\
-	cv/texture.scm				\
-	cv/filter.scm				\
-	cv/imgproc.scm				\
 	cv/segmentation.scm			\
-	cv/adds.scm				\
+	cv/features.scm				\
+	cv/filter.scm				\
+	cv/process.scm				\
+	cv/transform.scm			\
+	cv/texture.scm				\
+	cv/particles.scm			\
+	cv/morphology.scm			\
 	cv/compose.scm				\
 	cv/histogram.scm			\
-	cv/morphology.scm			\
 	cv.scm
 
 # NOCOMP_SOURCES= \
