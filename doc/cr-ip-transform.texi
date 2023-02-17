@@ -14,6 +14,9 @@ The Guile-CV procedures and methods to transform images.
 @ifhtml
 @indentedblock
 @table @code
+@item @ref{im-rgba->rgb}
+@item @ref{im-rgba->gray}
+@item @ref{im-rgb->gray}
 @item @ref{im-resize}
 @item @ref{im-resize-channel}
 @item @ref{im-rotate}
@@ -33,9 +36,6 @@ The Guile-CV procedures and methods to transform images.
 @item @ref{im-padd}
 @item @ref{im-padd-channel}
 @item @ref{im-padd-size}
-@item @ref{im-rgba->rgb}
-@item @ref{im-rgba->gray}
-@item @ref{im-rgb->gray}
 @item @ref{im-local-minima}
 @item @ref{im-local-minima-channel}
 @item @ref{im-local-maxima}
@@ -45,6 +45,26 @@ The Guile-CV procedures and methods to transform images.
 @end table
 @end indentedblock
 @end ifhtml
+
+
+@anchor{im-rgba->rgb}
+@anchor{im-rgba->gray}
+@anchor{im-rgb->gray}
+@deffn Procedure im-rgba->rgb image [#:bg '(0.0 0.0 0.0)]
+@deffnx Procedure im-rgba->gray image [#:bg '(0.0 0.0 0.0)]
+@deffnx Procedure im-rgb->gray image
+
+Returns a new RGB or GRAY image.
+
+In the RGBA case, @var{image} channels are first normalized. The new RGB
+channels are obtained by applying the following pseudo code algorithm:
+
+@lisp
+R = (((1 - Source.A) * BG.R) + (Source.A * Source.R)) * 255.0
+G = (((1 - Source.A) * BG.G) + (Source.A * Source.G)) * 255.0
+B = (((1 - Source.A) * BG.B) + (Source.A * Source.B)) * 255.0
+@end lisp
+@end deffn
 
 
 @anchor{im-resize}
@@ -218,32 +238,6 @@ Given the original image @var{width} and @var{height}, this procedure
 checks that @var{left}, @var{top}, @var{right} and @var{bottom} are
 @code{>= 0} and return a list, @code{(new-width new-height)},
 otherwise, it raises an error.
-@end deffn
-
-
-@c ;;;
-@c ;;; Additional API
-@c ;;; (cv adds)
-@c ;;;
-
-
-@anchor{im-rgba->rgb}
-@anchor{im-rgba->gray}
-@anchor{im-rgb->gray}
-@deffn Procedure im-rgba->rgb image [#:bg '(0.0 0.0 0.0)]
-@deffnx Procedure im-rgba->gray image [#:bg '(0.0 0.0 0.0)]
-@deffnx Procedure im-rgb->gray image
-
-Returns a new RGB or GRAY image.
-
-In the RGBA case, @var{image} channels are first normalized. The new RGB
-channels are obtained by applying the following pseudo code algorithm:
-
-@lisp
-R = (((1 - Source.A) * BG.R) + (Source.A * Source.R)) * 255.0
-G = (((1 - Source.A) * BG.G) + (Source.A * Source.G)) * 255.0
-B = (((1 - Source.A) * BG.B) + (Source.A * Source.B)) * 255.0
-@end lisp
 @end deffn
 
 

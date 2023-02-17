@@ -48,12 +48,15 @@ guile_cv_TEXINFOS = \
   cr-ip-kdata.texi		\
   cr-ip-impex.texi		\
   cr-ip-features.texi		\
-  cr-ip-texture.texi		\
   cr-ip-filter.texi		\
   cr-ip-process.texi		\
   cr-ip-transform.texi		\
+  cr-ip-texture.texi		\
+  cr-ip-particles.texi		\
   cr-ip-morphology.texi		\
   cr-ip-segmentation.texi	\
+  cr-ip-compose.texi		\
+  cr-ip-histogram.texi		\
   cr-ip-utils.texi		\
   cr-ip.texi			\
   cr-support-modules.texi	\

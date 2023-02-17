@@ -8,13 +8,16 @@
 * Image Structure and Accessors::
 * Kernel Structure and Accessors::
 * Import Export::
-* Features::
+* Histogram::
 * Texture::
-* Filter::
+* Features::
+* Particles::
 * Process::
+* Filter::
 * Transform::
 * Morphology::
 * Segmentation::
+* Compose::
 * Utilities::
 @end menu
 
@@ -22,11 +25,14 @@
 @include cr-ip-idata.texi
 @include cr-ip-kdata.texi
 @include cr-ip-impex.texi
-@include cr-ip-features.texi
+@include cr-ip-histogram.texi
 @include cr-ip-texture.texi
+@include cr-ip-features.texi
+@include cr-ip-particles.texi
 @include cr-ip-filter.texi
 @include cr-ip-process.texi
 @include cr-ip-transform.texi
 @include cr-ip-morphology.texi
 @include cr-ip-segmentation.texi
+@include cr-ip-compose.texi
 @include cr-ip-utils.texi

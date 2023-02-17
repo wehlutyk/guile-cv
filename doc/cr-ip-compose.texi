@@ -1,0 +1,65 @@
+@c -*- mode: texinfo; coding: utf-8 -*-
+@c This is part of the GNU Guile-CV Reference Manual.
+@c Copyright (C) 2023 Free Software Foundation, Inc.
+@c See the file guile-cv.texi for copying conditions.
+
+
+@node Compose
+@subsection Compose
+
+Other Guile-CV procedures and methods to compose images.
+
+
+@subheading Procedures
+
+
+@ifhtml
+@indentedblock
+@table @code
+@item @ref{im-compose}
+@item @ref{im-compose-channels}
+@end table
+@end indentedblock
+@end ifhtml
+
+
+@anchor{im-compose}
+@anchor{im-compose-channels}
+@deffn Procedure im-compose position alignment @
+       [#:color '(0 0 0)] img-1 img-2 @dots{}
+@deffnx Procedure im-compose-channels @
+                  position alignment channels widths heights @
+                  [#:value '0.0]
+
+Returns a new image or a new channel.
+
+The valid @var{position} and @var{alignment} symbols are:
+@indentedblock
+@table @code
+@item left right
+@code{top center bottom}
+@item above below
+@code{left center right}
+@end table
+@end indentedblock
+
+When used, the optional @var{#:color} keyword argument must come after
+the mandatory @var{alignment} argument and precede @var{img-1},
+otherwise Guile will raise an exception. For RGB images, it is the
+color used to padd images passed in argument that are inferior, in
+width or height (depending on the position), to the biggest of them. For
+GRAY images, the @var{#:color} is reduced to its corresponding gray
+@code{value}:
+
+@lisp
+@code{(/ (reduce + 0 color) 3)}
+@end lisp
+
+For the @code{im-compose-channels} procedure, the list of
+@var{channels}, @var{widths} and @var{heights} must be of equal length
+and equally ordered, so the @code{nth} element of @var{widths} and
+@var{heights} are the @code{width} and @code{height} of the @code{nth}
+element of @var{channels}. The optional @code{#:value} keyword argument
+is used to padd @var{channels} that are inferior, in width or height
+(depending on the position), to the biggest of them.
+@end deffn

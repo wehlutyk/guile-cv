@@ -1,73 +1,41 @@
 @c -*- mode: texinfo; coding: utf-8 -*-
 @c This is part of the GNU Guile-CV Reference Manual.
-@c Copyright (C) 2016 - 2018 Free Software Foundation, Inc.
+@c Copyright (C) 2016 - 2023 Free Software Foundation, Inc.
 @c See the file guile-cv.texi for copying conditions.
 
 
 @node Utilities
 @subsection Utilities
 
-Other Guile-CV procedures and methods utilities.
+Other Guile-CV utility procedures, methods and variables.
 
 
 @subheading Procedures
 
-
 @ifhtml
 @indentedblock
 @table @code
-@item @ref{im-compose}
-@item @ref{im-compose-channels}
 @item @ref{im-display}
 @item @ref{im-display-channel}
-@item @ref{im-histogram}
 @item @ref{im-show}
 @end table
 @end indentedblock
 @end ifhtml
 
 
-@anchor{im-compose}
-@anchor{im-compose-channels}
-@deffn Procedure im-compose position alignment @
-       [#:color '(0 0 0)] img-1 img-2 @dots{}
-@deffnx Procedure im-compose-channels @
-                  position alignment channels widths heights @
-                  [#:value '0.0]
+@subheading Variables
 
-Returns a new image or a new channel.
-
-The valid @var{position} and @var{alignment} symbols are:
+@ifhtml
 @indentedblock
 @table @code
-@item left right
-@code{top center bottom}
-@item above below
-@code{left center right}
+@item @ref{%image-cache}
+@item @ref{%image-cache-format}
 @end table
 @end indentedblock
+@end ifhtml
 
-When used, the optional @var{#:color} keyword argument must come after
-the mandatory @var{alignment} argument and precede @var{img-1},
-otherwise Guile will raise an exception. For RGB images, it is the
-color used to padd images passed in argument that are inferior, in
-width or height (depending on the position), to the biggest of them. For
-GRAY images, the @var{#:color} is reduced to its corresponding gray
-@code{value}:
 
-@lisp
-@code{(/ (reduce + 0 color) 3)}
-@end lisp
-
-For the @code{im-compose-channels} procedure, the list of
-@var{channels}, @var{widths} and @var{heights} must be of equal length
-and equally ordered, so the @code{nth} element of @var{widths} and
-@var{heights} are the @code{width} and @code{height} of the @code{nth}
-element of @var{channels}. The optional @code{#:value} keyword argument
-is used to padd @var{channels} that are inferior, in width or height
-(depending on the position), to the biggest of them.
-@end deffn
-
+@subheading Procedures
 
 @anchor{im-display}
 @anchor{im-display-channel}
@@ -121,48 +89,6 @@ Channel 3
 @ref{im-display-channel} procedures are meant to be used on very small
 and testing images, otherwise even on a small image, it might be ok in a
 terminal, but it will definitely will kill your emacs.
-@end deffn
-
-
-@anchor{im-histogram}
-@deffn Procedure im-histogram image @
-       [#:subtitle @quotedblleft{}Untitled@quotedblright{}]
-
-Returns two values: (1) an image; (2) a list (or a list of list) of
-significant values for @var{image}: one list if @var{image} is GRAY, a
-list of list of values per channel if @var{image} is RGB.
-
-The returned image is composed of a header (title, @var{#:subtitle}),
-either the GRAY or the RGB channel histogram(s) for @var{image} and a
-footer, which is a table containg, for each channel, the following
-values: @code{mean}, @code{standard deviation}, @code{minimum},
-@code{maximum}, the @code{mode}@footnote{The mode is the integer
-corresponding to the histogram entry that received the maximum of hits,
-and the value displayed in parens precisely is the number of hits.}
-followed by its @code{value}.
-
-Here below, the call sequence and the histogram for the GRAY image
-@file{sinter.png} given along with Guile-CV documentation and examples:
-
-@lisp
-scheme@@(guile-user)> (im-load "sinter.png")
-$32 = (212 128 1 (#f32(25.0 39.0 50.0 52.0 51.0 45.0 # …)))
-scheme@@(guile-user)> (im-histogram $32 #:subtitle "sinter.png")
-$34 = (282 271 1 (#f32(255.0 255.0 255.0 255.0 255.0 # …)))
-$35 = (27136 163.346 75.081 0 243 215 727)
-@end lisp
-
-@ifnottex
-@indentedblock
-@image{images/sinter-histogram,,,sinter-histogram,png}
-@end indentedblock
-@end ifnottex
-
-Note that histogram images returned by @code{im-histogram} have no
-borders, the above histogram has been padded - using @code{(im-padd $34
-1 1 1 1 #:color '(96 96 96))} - for better readability, otherwise the
-title above and the table below would look as if they were not
-centered.
 @end deffn
 
 @anchor{im-show}
@@ -239,16 +165,6 @@ these options when working with Guile-CV.
 
 
 @subheading Variables
-
-@ifhtml
-@indentedblock
-@table @code
-@item @ref{%image-cache}
-@item @ref{%image-cache-format}
-@end table
-@end indentedblock
-@end ifhtml
-
 
 @anchor{%image-cache}
 @defvr Variable %image-cache

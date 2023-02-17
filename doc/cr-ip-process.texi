@@ -42,8 +42,6 @@ The Guile-CV procedures and methods to process images.
 @item @ref{im-or-channel}
 @item @ref{im-xor}
 @item @ref{im-xor-channel}
-@item @ref{im-particles}
-@item @ref{im-particle-clean}
 @end table
 @end indentedblock
 @end ifhtml
@@ -290,44 +288,4 @@ levitating GNU likes apples!
 @c the result of which being @code{img-1} (a mathematical proprety of the
 @c @code{XOR} operation of course, but its fun to see it @samp{in action}.
 @c @end indentedblock
-@end deffn
-
-
-@anchor{im-particles}
-@deffn Procedure im-particles image features [#:clean #t]
-@c @cindex Image split
-@cindex Image Particles
-
-Returns two values, a list of images (the particles) and a list of their
-bounding boxes in the original @var{image}.
-
-Each returned image is a @samp{particle}, which is a subpart of
-@var{image} determined by its bounding box, given by the @code{left}
-@code{top} @code{right} @code{bottom} values of the corresponding
-@samp{entry} in @var{features} (see @ref{im-features} for a complete
-description of a feature value list.
-
-When @var{#:clean} is @code{#t}, which is the default,
-@ref{im-particle-clean} is called upon each particle (see below for a
-description of the expected result).
-@end deffn
-
-
-@anchor{im-particle-clean}
-@deffn Procedure im-particle-clean particle
-
-Returns a new image.
-
-Cleaning a @var{particle} (which is an image) means detecting and
-removing any object(s) that is(are) not connected to the
-@samp{particle} itself.
-
-This procedure is based on the property that in a @samp{particle}, which
-is an (sub)image resulting from a @ref{im-crop} based on the bounding
-box coordinates as returned by @code{im-features}, there precisely is
-one object that, if you call @code{im-features} upon @var{particle},
-would have its bounding box coordinates being the entire
-@var{particle}. In other words, if you call @code{im-particle-clean}
-upon an image that is not a @samp{particle}, the result will just be a
-black image.
 @end deffn
