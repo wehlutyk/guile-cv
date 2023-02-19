@@ -60,7 +60,7 @@
 ;;;
 
 (define %scrap-cache
-  (@@ (cv transform) scrap-cache))
+  (@@ (cv process) scrap-cache))
 
 (define* (im-particles image features #:key (clean #t))
   (let* ((map-proc (if (%use-par-map) par-map map))

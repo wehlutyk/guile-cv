@@ -48,6 +48,7 @@
 
   #:export (im-threshold
             im-scrap
+            im-scrap-channel
             im-and
             im-and-channel
 	    im-or
