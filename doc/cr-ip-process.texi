@@ -14,6 +14,8 @@ The Guile-CV procedures and methods to process images.
 @ifhtml
 @indentedblock
 @table @code
+@item @ref{im-threshold}
+@item @ref{im-scrap}
 @item @ref{im-add}
 @item @ref{im-add-channel}
 @item @ref{im-subtract}
@@ -45,6 +47,40 @@ The Guile-CV procedures and methods to process images.
 @end table
 @end indentedblock
 @end ifhtml
+
+
+@anchor{im-threshold}
+@deffn Procedure im-threshold image threshold [#:bg 'black]
+
+Returns a new BLACK and WHITE image.
+
+The @var{image} argument can either be a GRAY or an an RGB image, in
+which case each pixel is converted to GRAY as it is processed. Valid
+@var{#:bg} values are @code{black} (the default) and @code{white}.
+
+Pixels for which the original value is @code{>=} @var{threshold} are set
+to 255.0 if @var{#:bg} is @code{'black}, and set to 0.0 if @var{#:bg} is
+@code{'white}. The other pixels are set to 0.0 or 255.0 respectively.
+@end deffn
+
+
+@anchor{im-scrap}
+@deffn Procedure im-scrap image size [#:pred <] [#:con 8] [#:bg 'black] @
+                 [#:exclude-on-edges #f]
+
+Returns a new image.
+
+Scraping an image is the operation of removing objects depending on
+their @var{size} (in pixels). When @var{exclude-on-edges} is #t, all
+objects that are on any edges are also removed.
+
+The procedure first calls @ref{im-label} using @var{con} and @var{bg},
+then calls @ref{im-features}.  The @code{area} feature of each object is
+then compared to @var{size} using @var{pred} and the object is removed
+if the result is #t.
+
+Note that @var{image} must be a binary image.
+@end deffn
 
 
 @anchor{im-add}

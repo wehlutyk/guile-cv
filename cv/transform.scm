@@ -38,7 +38,6 @@
   #:use-module (cv idata)
   #:use-module (cv features)
   #:use-module (cv utils)
-  #:use-module (cv segmentation)
 
   #:duplicates (merge-generics
 		replace
@@ -74,10 +73,7 @@
             im-local-minima
             im-local-minima-channel
             im-local-maxima
-            im-local-maxima-channel
-            im-threshold
-            im-scrap
-            im-scrap-channel))
+            im-local-maxima-channel))
 
 
 #;(g-export )
@@ -592,150 +588,6 @@ Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
       ((0) to)
       (else
        (error "Local maxima failed.")))))
-
-#!
-(define* (im-threshold image threshold #:key (bg 'black))
-  (if (and (>= threshold 0.0)
-	   (<= threshold 255.0))
-      (match image
-	((width height n-chan idata)
-         (letrec* ((test (case bg
-                           ((black) >=)
-                           ((white) <=)
-                           (else
-                            (error "Invalid background: " bg))))
-                   (pred (match idata
-                           ((r g b)
-                            (lambda (i threshold)
-                              (test (/ (+ (f32vector-ref r i)
-                                          (f32vector-ref g i)
-                                          (f32vector-ref b i))
-                                       3)
-                                    threshold)))
-                           ((c)
-                            (lambda (i threshold)
-                              (test (f32vector-ref c i) threshold)))
-                           (else
-                            (error "Not a GRAY, RGB, nor an RGBA image."))))
-                   (to (im-make-channel width height))
-                   (n-cell (* width height))
-                   (proc (lambda (range)
-                           (match range
-                             ((start end)
-                              (do ((i start
-                                      (+ i 1)))
-                                  ((= i end))
-                                (when (pred i threshold)
-                                  (f32vector-set! to i 255.0))))))))
-           (if (%use-par-map)
-               (par-for-each proc (n-cell->per-core-start-end n-cell))
-               (proc (list 0 n-cell)))
-           (list width height 1 (list to)))))
-      (error "Invalid threshold: " threshold)))
-!#
-
-(define* (im-threshold image threshold #:key (bg 'black))
-  (if (and (>= threshold 0.0)
-	   (<= threshold 255.0))
-        (match image
-          ((width height n-chan idata)
-           (let ((to (im-make-channel width height))
-                 (n-cell (* width height)))
-             (list width height 1
-                   (list (f32vector-threshold to n-cell idata threshold
-                                              (case bg
-                                                ((black) 0)
-                                                ((white) 255)
-                                                (else
-                                                 (error "No such bg: " bg)))))))))
-      (error "Invalid threshold: " threshold)))
-
-(define* (im-scrap image val #:key (pred <) (con 8) (bg 'black) (exclude-on-edges #f))
-  ;; (im-binary? image) is rather expensive
-  (match image
-    ((width height n-chan idata)
-     ;; so we only check for n-chan
-     (match idata
-       ((channel)
-        (receive (l-image n-label)
-            (im-label image #:con con #:bg bg)
-          (match l-image
-            ((_ _ _ l-idata)
-             (match l-idata
-               ((l-channel)
-                (let* ((features (im-features image l-image #:n-label n-label))
-                       (n-feature (length features))
-                       (to-scrap (fold (lambda (feature i prev)
-                                         (match feature
-                                           ((area left top right bottom . rest)
-                                            (if (and (not (= i 0))
-                                                     (or (pred area val)
-                                                         (and exclude-on-edges
-                                                              (or (= left 0)
-                                                                  (= top 0)
-                                                                  (= right (- width 1))
-                                                                  (= bottom (- height 1))))))
-                                                (cons i prev)
-                                                prev))))
-                                       '()
-                                       features
-                                       (iota n-feature))))
-                  (list width height 1
-                        (list (im-scrap-channel channel l-channel width height
-                                                to-scrap n-label))))))))))
-       (else
-        (error "Not a binary image."))))))
-
-(define (scrap-cache to-scrap n-label)
-  (let ((n-scrap (length to-scrap))
-        (cache (make-s32vector n-label 0)))
-    (do ((i 0
-            (+ i 1)))
-	((= i n-scrap))
-      (s32vector-set! cache (list-ref to-scrap i) 1))
-    cache))
-
-(define (im-scrap-channel channel l-channel width height to-scrap n-label)
-  (let* ((to (im-copy-channel channel width height))
-         (n-cell (* width height))
-         (cache (scrap-cache to-scrap n-label)))
-    (f32vector-scrap channel l-channel n-cell cache to)
-    to))
-
-#!
-
-;; ok for small images, but too slow otherwise so, till Guile-3.0, I
-;; have to do this in C instead which is fine anyway, because memory is
-;; allocated on the scheme side. Let's keep these for now, once
-;; Guile-3.0 is out, it will be nice to try and compare with those
-;; versions hsing libgule-cv.
-
-(define (scrap-cache to-scrap n-label)
-  (let ((n-scrap (length to-scrap))
-        (cache (make-vector n-label #f)))
-    (do ((i 0
-            (+ i 1)))
-	((= i n-scrap))
-      (vector-set! cache (list-ref to-scrap i) #t))
-    cache))
-
-(define (im-scrap-channel channel l-channel width height to-scrap n-label)
-  (let* ((to (im-copy-channel channel width height))
-         (n-cell (* width height))
-         (cache (scrap-cache to-scrap n-label)))
-    (do ((i 0
-	    (+ i 1)))
-	((= i n-cell))
-      (let ((val #;(inexact->exact (f32vector-ref l-channel i))
-                 (float->int (f32vector-ref l-channel i))))
-        (f32vector-set! to i
-                        (if (or (zero? val)
-                                (vector-ref cache val))
-                            0.0
-                            (f32vector-ref channel i)))))
-    to))
-
-!#
 
 
 ;;;
