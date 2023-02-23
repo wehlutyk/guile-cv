@@ -1,6 +1,6 @@
 @c -*- mode: texinfo; coding: utf-8 -*-
 @c This is part of the GNU Guile-CV Reference Manual.
-@c Copyright (C) 2023 Free Software Foundation, Inc.
+@c Copyright (C) 2016 - 2023 Free Software Foundation, Inc.
 @c See the file guile-cv.texi for copying conditions.
 
 
@@ -40,6 +40,10 @@ The Guile-CV procedures and methods to transform images.
 @item @ref{im-local-minima-channel}
 @item @ref{im-local-maxima}
 @item @ref{im-local-maxima-channel}
+@item @ref{im-fft}
+@item @ref{im-fft-channel}
+@item @ref{im-fft-inverse}
+@item @ref{im-fft-inverse-channel}
 @end table
 @end indentedblock
 @end ifhtml
@@ -290,4 +294,41 @@ were found, use @ref{im-reduce} upon the result;
 @item If you are interested by the original minima or maxima pixel
 values, Use @ref{im-times} between the original image and the result.
 @end itemize
+@end deffn
+
+
+@anchor{im-fft}
+@anchor{im-fft-channel}
+@deffn Procedure im-fft image
+@deffnx Procedure im-fft-channel channel width height
+
+Returns two images or channels.
+
+@c A @emph{transform} is simply a mapping from one set of coordinates to
+@c another. The Fourier tranform converts spatial coordinates into
+@c frequencies.
+
+Computes and returns the Fast Fourier Transform@footnote{The @abbr{FFT,
+Fast Fourier Transform} is simply a faster way to compute the Fourier
+transform. All FFT related procedures, and their inverse, are obtained
+by calling the @uref{@value{UFFTW}, FFTW library}.} of the @var{image}
+or @var{channel}. It returns two values, images or channels: the first
+contains the real part and the second the imaginary part of the
+transformation.
+@end deffn
+
+
+@anchor{im-fft-inverse}
+@anchor{im-fft-inverse-channel}
+@deffn Procedure im-fft-inverse real imaginary
+@deffnx Procedure im-fft-inverse-channel real-channel @
+                    imaginary-channel width height
+
+Returns two images or channels.
+
+Computes and returns the inverse Fast Fourier Transform given its
+@var{real} and @var{imaginary} or @var{real-channel} and
+@var{imaginary-channel} parts. It returns two values, images or
+channels: the first contains the real part and the second the imaginary
+part of the inverse transformation.
 @end deffn

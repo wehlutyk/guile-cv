@@ -73,7 +73,11 @@
             im-local-minima
             im-local-minima-channel
             im-local-maxima
-            im-local-maxima-channel))
+            im-local-maxima-channel
+            im-fft
+            im-fft-channel
+            im-fft-inverse
+            im-fft-inverse-channel))
 
 
 #;(g-export )
@@ -589,6 +593,82 @@ Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
       (else
        (error "Local maxima failed.")))))
 
+(define (im-fft image)
+  (match image
+    ((width height n-chan idata)
+     (match idata
+       ((c)
+        (receive (to-real to-imaginary)
+            (im-fft-channel c width height)
+          (values (list width height n-chan (list to-real))
+                  (list width height n-chan (list to-imaginary)))))
+       ((r g b)
+        (let* ((map-proc (if (%use-par-map) par-map map))
+               (fft-ri (map-proc (lambda (channel)
+                                   (receive (c-real c-imaginary)
+                                       (im-fft-channel channel width height)
+                                     (list c-real c-imaginary)))
+	                   idata)))
+          (apply values
+                 (map (lambda (z-item)
+                        (cons* width height n-chan (list z-item)))
+                   (apply zip fft-ri)))))
+       (else
+        (error "Not a GRAY nor an RGB image" width height n-chan))))))
+
+(define (im-fft-channel channel width height)
+  (let ((to-real (im-make-channel width height))
+        (to-imaginary (im-make-channel width height))
+        (n-cell (* width height)))
+    (case (vigra-fft-channel channel to-real to-imaginary width height)
+      ((0)
+       (values to-real
+               to-imaginary))
+      (else
+       (error "Fft failed.")))))
+
+(define (im-fft-inverse real imaginary)
+  (match real
+    ((width height n-chan idata)
+     (match idata
+       ((r-chan)
+        (receive (to-real to-imaginary)
+            (im-fft-inverse-channel r-chan
+                                    (im-channel imaginary 0)
+                                    width height)
+          (values (list width height n-chan (list to-real))
+                  (list width height n-chan (list to-imaginary)))))
+       ((rr-chan rg-chan rb-chan)
+        (match (im-channels imaginary)
+          ((ir-chan ig-chan ib-chan)
+           (let* ((map-proc (if (%use-par-map) par-map map))
+                  (fft-ri (map-proc (lambda (ri-chan)
+                                      (match ri-chan
+                                        ((r-chan i-chan)
+                                         (receive (c-real c-imaginary)
+                                             (im-fft-inverse-channel r-chan i-chan width height)
+                                           (list c-real c-imaginary)))))
+	                      (apply zip (list idata (im-channels imaginary))))))
+             (apply values
+                    (map (lambda (z-item)
+                           (cons* width height n-chan (list z-item)))
+                      (apply zip fft-ri)))))))
+       (else
+        (error "Not GRAY nor RGB images" width height n-chan))))))
+
+(define (im-fft-inverse-channel from-real from-imaginary width height)
+  (let ((to-real (im-make-channel width height))
+        (to-imaginary (im-make-channel width height))
+        (n-cell (* width height)))
+    (case (vigra-fft-inverse-channel from-real from-imaginary
+                                     to-real to-imaginary
+                                     width height)
+      ((0)
+       (values to-real
+               to-imaginary))
+      (else
+       (error "Fft inverse failed.")))))
+
 
 ;;;
 ;;; Guile vigra low level API
@@ -679,6 +759,23 @@ Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
                       (if borders? 1 0)
                       (if plateaus? 1 0)
                       epsilon))
+
+(define (vigra-fft-channel from to-real to-imaginary width height)
+  (vigra_fft_channel (bytevector->pointer from)
+		     (bytevector->pointer to-real)
+                     (bytevector->pointer to-imaginary)
+		     width
+		     height))
+
+(define (vigra-fft-inverse-channel from-real from-imaginary
+                                   to-real to-imaginary
+                                   width height)
+  (vigra_fft_inverse_channel (bytevector->pointer from-real)
+                             (bytevector->pointer from-imaginary)
+		             (bytevector->pointer to-real)
+                             (bytevector->pointer to-imaginary)
+		             width
+		             height))
 
 
 ;;;
@@ -784,3 +881,24 @@ Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
                             int		;; borders?
                             int		;; plateaus?
                             float)))	;; epsilon
+
+(define vigra_fft_channel
+  (pointer->procedure int
+		      (dynamic-func "vigra_fouriertransform_c"
+				    %libvigra-c)
+		      (list '*		;; from channel
+			    '*		;; to-real channel
+                            '*		;; to-imaginary channel
+			    int		;; width
+			    int)))	;; height
+
+(define vigra_fft_inverse_channel
+  (pointer->procedure int
+		      (dynamic-func "vigra_fouriertransforminverse_c"
+				    %libvigra-c)
+		      (list '*		;; from-real channel
+                            '*		;; from-imaginary channel
+			    '*		;; to-real channel
+                            '*		;; to-imaginary channel
+			    int		;; width
+			    int)))	;; height

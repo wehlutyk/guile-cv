@@ -6,7 +6,7 @@ dnl
 
 define(GUILE_CV_CONFIGURE_COPYRIGHT,[[
 
-Copyright (C) 2016 - 2021
+Copyright (C) 2016 - 2023
 Free Software Foundation, Inc.
 
 This file is part of GNU Guile-CV.
@@ -103,6 +103,8 @@ VIGRA_C_FUNCTION([vigra_localminima_c])
 VIGRA_C_FUNCTION([vigra_localmaxima_c])
 VIGRA_C_FUNCTION([vigra_extractfeatures_gray_c])
 VIGRA_C_FUNCTION([vigra_extractfeatures_rgb_c])
+VIGRA_C_FUNCTION([vigra_fouriertransform_c])
+VIGRA_C_FUNCTION([vigra_fouriertransforminverse_c])
 
 
 GUILE_PKG([3.0 2.2 2.0])
