@@ -67,7 +67,7 @@ LATEX_PACKAGE_REQUIRED([booktabs])
 LATEX_PACKAGE_REQUIRED([siunitx])
 LATEX_PACKAGE_REQUIRED([iwona])
 
-VIGRA_LIB([1.11.0])
+VIGRA_LIB([1.11.1])
 
 VIGRA_C_LIB
 VIGRA_C_FUNCTION([vigra_labelimagewithbackground_c])
