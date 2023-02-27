@@ -105,6 +105,8 @@ VIGRA_C_FUNCTION([vigra_extractfeatures_gray_c])
 VIGRA_C_FUNCTION([vigra_extractfeatures_rgb_c])
 VIGRA_C_FUNCTION([vigra_fouriertransform_c])
 VIGRA_C_FUNCTION([vigra_fouriertransforminverse_c])
+VIGRA_C_FUNCTION([vigra_fastcrosscorrelation_c])
+VIGRA_C_FUNCTION([vigra_fastnormalizedcrosscorrelation_c])
 
 
 GUILE_PKG([3.0 2.2 2.0])

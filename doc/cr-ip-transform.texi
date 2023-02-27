@@ -44,6 +44,10 @@ The Guile-CV procedures and methods to transform images.
 @item @ref{im-fft-channel}
 @item @ref{im-fft-inverse}
 @item @ref{im-fft-inverse-channel}
+@item @ref{im-fcc}
+@item @ref{im-fcc-channel}
+@item @ref{im-fncc}
+@item @ref{im-fncc-channel}
 @end table
 @end indentedblock
 @end ifhtml
@@ -331,4 +335,26 @@ Computes and returns the inverse Fast Fourier Transform given its
 @var{imaginary-channel} parts. It returns two values, images or
 channels: the first contains the real part and the second the imaginary
 part of the inverse transformation.
+@end deffn
+
+
+@anchor{im-fcc}
+@anchor{im-fcc-channel}
+@anchor{im-fncc}
+@anchor{im-fncc-channel}
+@deffn Procedure im-fcc image mask
+@deffnx Procedure im-fncc image mask
+@deffnx Procedure im-fcc-channel i-chan m-chan @
+                  width height m-width m-height
+@deffnx Procedure im-fncc-channel i-chan m-chan @
+                  width height m-width m-height
+
+Returns an image or a channel.
+
+Computes and returns the Fast Cross Correlation or Fast Normalized Cross
+Correlation between @var{image} and a (usually smaller)
+@var{mask}@footnote{Also called a @emph{template}, or a
+@emph{pattern}.}, using the Fast Fourier Transform@footnote{Hence the
+names, @abbr{FCC, Fast Cross Correlation} and @abbr{FNCC, Fast
+Normalized Cross Correlation}.}.
 @end deffn

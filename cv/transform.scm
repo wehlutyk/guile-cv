@@ -77,7 +77,11 @@
             im-fft
             im-fft-channel
             im-fft-inverse
-            im-fft-inverse-channel))
+            im-fft-inverse-channel
+            im-fcc
+            im-fcc-channel
+            im-fncc
+            im-fncc-channel))
 
 
 #;(g-export )
@@ -669,6 +673,58 @@ Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
       (else
        (error "Fft inverse failed.")))))
 
+(define (im-fcc image mask)
+  (match image
+    ((width height n-chan idata)
+     (match mask
+       ((m-width m-height m-chan mdata)
+        (if (and (odd? m-width) (odd? m-height))
+            (let* ((map-proc (if (%use-par-map) par-map map)))
+              (list width height n-chan
+                    (map-proc (lambda (im-chan)
+                                (match im-chan
+                                  ((i-chan m-chan)
+                                   (im-fcc-channel i-chan m-chan
+                                                   width height m-width m-height))))
+                        (zip idata mdata))))
+            (scm-error 'invalid-args #f
+                       "Invalid mask dimension(s)^ ~A  ~A (both must be odd)."
+                       (list m-width m-height ) #f)))))))
+
+(define (im-fcc-channel from mask width height m-width m-height)
+  (let ((to (im-make-channel width height)))
+    (case (vigra-fcc-channel from mask to width height m-width m-height)
+      ((0)
+       to)
+      (else
+       (error "Fcc failed.")))))
+
+(define (im-fncc image mask)
+  (match image
+    ((width height n-chan idata)
+     (match mask
+       ((m-width m-height m-chan mdata)
+        (if (and (odd? m-width) (odd? m-height))
+            (let* ((map-proc (if (%use-par-map) par-map map)))
+              (list width height n-chan
+                    (map-proc (lambda (im-chan)
+                                (match im-chan
+                                  ((i-chan m-chan)
+                                   (im-fncc-channel i-chan m-chan
+                                                   width height m-width m-height))))
+                        (zip idata mdata))))
+            (scm-error 'invalid-args #f
+                       "Invalid mask dimension(s)^ ~A  ~A (both must be odd)."
+                       (list m-width m-height ) #f)))))))
+
+(define (im-fncc-channel from mask width height m-width m-height)
+  (let ((to (im-make-channel width height)))
+    (case (vigra-fncc-channel from mask to width height m-width m-height)
+      ((0)
+       to)
+      (else
+       (error "Fncc failed.")))))
+
 
 ;;;
 ;;; Guile vigra low level API
@@ -776,6 +832,26 @@ Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
                              (bytevector->pointer to-imaginary)
 		             width
 		             height))
+
+(define (vigra-fcc-channel from mask to
+                           width height mask-width mask-height)
+  (vigra_fcc_channel (bytevector->pointer from)
+		     (bytevector->pointer mask)
+                     (bytevector->pointer to)
+		     width
+		     height
+                     mask-width
+                     mask-height))
+
+(define (vigra-fncc-channel from mask to
+                            width height mask-width mask-height)
+  (vigra_fncc_channel (bytevector->pointer from)
+		      (bytevector->pointer mask)
+                      (bytevector->pointer to)
+		      width
+		      height
+                      mask-width
+                      mask-height))
 
 
 ;;;
@@ -902,3 +978,27 @@ Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
                             '*		;; to-imaginary channel
 			    int		;; width
 			    int)))	;; height
+
+(define vigra_fcc_channel
+  (pointer->procedure int
+		      (dynamic-func "vigra_fastcrosscorrelation_c"
+				    %libvigra-c)
+		      (list '*		;; from channel
+			    '*		;; mask channel
+                            '*		;; to  channel
+			    int		;; width
+			    int		;; height
+			    int		;; mask width
+			    int)))	;; mask height
+
+(define vigra_fncc_channel
+  (pointer->procedure int
+		      (dynamic-func "vigra_fastnormalizedcrosscorrelation_c"
+				    %libvigra-c)
+		      (list '*		;; from channel
+			    '*		;; mask channel
+                            '*		;; to  channel
+			    int		;; width
+			    int		;; height
+			    int		;; mask width
+			    int)))	;; mask height
