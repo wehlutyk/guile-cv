@@ -4,7 +4,7 @@
 
 #+BEGIN_COMMENT
 
-Copyright (C) 2016 - 2021
+Copyright (C) 2016 - 2023
 Free Software Foundation, Inc.
 
 This document is part of GNU Guile-CV.
@@ -47,9 +47,9 @@ constructs= available in Guile, based on its support to POSIX threads.
 
 ** Latest News
 
-November 2021
+February 2023
 
-GNU Guile-CV version 0.3.1 is released.
+GNU Guile-CV version 0.4.0 is released.
 
 Visit the NEWS file or see the [[http://git.savannah.gnu.org/cgit/guile-cv.git/tree/NEWS][News]] page for the list of visible changes
 since the last release, as well as older news.

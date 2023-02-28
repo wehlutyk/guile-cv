@@ -4,7 +4,7 @@
 
 #+BEGIN_COMMENT
 
-Copyright (C) 2016 - 2021
+Copyright (C) 2016 - 2023
 Free Software Foundation, Inc.
 
 This document is part of GNU Guile-CV.
@@ -32,7 +32,7 @@ Guile-CV needs the following software to run:
 	[[http://www.gnu.org/software/guile][Guile]] 		>= 2.0.14
 	  [allows 2.2, 3.0 (>= 3.0.7)]
 	[[http://www.nongnu.org/guile-lib/][Guile-Lib]]	>= 0.2.5
-	[[http://ukoethe.github.io/vigra/][Vigra]]		>= 1.11.0
+	[[http://ukoethe.github.io/vigra/][Vigra]]		>= 1.11.1
 
 	  Note:
 	  -----
@@ -41,13 +41,7 @@ Guile-CV needs the following software to run:
 	  ‑DCMAKE_BUILD_TYPE=RELEASE option, which triggers absolutely
 	  essential adequate runtime optimization flags.
 
-	[[https://github.com/BSeppke/vigra_c][Vigra C]]		>= commit 0af647d08 - Oct 28, 2018
-
-	  The local minima and maxima interfaces have been improved, and
-	  now support the full set of options provided by Vigra, to our
-	  request (thank you Benjamin!).  In addition there has been a
-	  few bugs fixed, including one we detected while working on
-	  Guile-CV local minima bindigs.
+	[[https://github.com/BSeppke/vigra_c][Vigra C]]		>= commit 3351722 - Jan 18, 2022
 
 	  Vigra_c is a C wrapper [to some of] the Vigra
 	  functionality. It is currently only available by cloning its
@@ -92,8 +86,8 @@ Guile-CV needs the following software to run:
 
 Guile-CV releases are [[http://ftp.gnu.org/gnu/guile-cv/][here]].  The latest tarballs are:
 
-		guile-cv-0.3.1.tar.gz
-		guile-cv-0.3.1.tar.gz.sig
+		guile-cv-0.4.0.tar.gz
+		guile-cv-0.4.0.tar.gz.sig
 
 		[ GPG Key: A3057AD7
 		[ gpg --keyserver keys.gnupg.net --recv-keys A3057AD7
@@ -102,8 +96,8 @@ Assuming you have satisfied the dependencies, open a terminal and
 proceed with the following steps:
 
 	cd <download-path>
-	tar zxf guile-cv-0.3.1.tar.gz
-	cd guile-cv-0.3.1
+	tar zxf guile-cv-0.4.0.tar.gz
+	cd guile-cv-0.4.0
 	./configure [--prefix=/your/prefix] [--with-guile-site=yes]
 	make
 	make install

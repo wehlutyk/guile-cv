@@ -4,7 +4,7 @@
 
 #+BEGIN_COMMENT
 
-Copyright (C) 2016 - 2021
+Copyright (C) 2016 - 2023
 Free Software Foundation, Inc.
 
 This document is part of GNU Guile-CV.
@@ -25,6 +25,35 @@ warranty.
 
 
 * Latest News
+
+** February 2023
+
+[[http://www.gnu.org/software/guile-cv/][GNU Guile-CV]] version 0.4.0 is released.
+
+This is a maintenance release, which introduces new interfaces.
+
+*** Changes since 0.3.1
+
+Here is a summary of visible changes since version 0.3.1. See GNU
+Guile-CV's [[http://git.savannah.gnu.org/cgit/guile-cv.git][git summary]] and [[http://git.savannah.gnu.org/cgit/guile-cv.git/log/][git log]] for a complete description.
+
+**** Dependencies
+
+Vigra >= 1.11.1
+Vigra C >= commit 0af647d08 - Oct 28, 2018
+
+**** New interfaces
+
+im-fft
+im-fft-channel
+im-fft-inverse
+im-fft-inverse-channel
+im-fcc
+im-fcc-channel
+im-fncc
+im-fncc-channel
+
+* Older News
 
 ** November 2021
 
@@ -49,8 +78,6 @@ Guile 3.0 (>= 3.0.6) does not use libltdl anymore, and although in guile
 (system foreign-library) module, both the comment and the definition of
 augment-ltdl-library-path seems to take care of finding .so files either
 aside .la or in a .libs/ subdir, it does not work.
-
-* Older News
 
 ** November 2021
 
