@@ -305,6 +305,7 @@ values, Use @ref{im-times} between the original image and the result.
 @anchor{im-fft-channel}
 @deffn Procedure im-fft image
 @deffnx Procedure im-fft-channel channel width height
+@cindex Fast Fourier Transform
 
 Returns two images or channels.
 
@@ -327,6 +328,7 @@ transformation.
 @deffn Procedure im-fft-inverse real imaginary
 @deffnx Procedure im-fft-inverse-channel real-channel @
                     imaginary-channel width height
+@cindex Fast Fourier Transform Inverse
 
 Returns two images or channels.
 
@@ -348,6 +350,8 @@ part of the inverse transformation.
                   width height m-width m-height
 @deffnx Procedure im-fncc-channel i-chan m-chan @
                   width height m-width m-height
+@cindex Fast Cross Correlation
+@cindex Fast Normalized Cross Correlation
 
 Returns an image or a channel.
 
