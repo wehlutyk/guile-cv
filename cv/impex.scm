@@ -41,7 +41,8 @@
 		last)
 
   #:export (im-load
-	    im-save))
+            im-load-memory
+	        im-save))
 
 
 (g-export im-size
@@ -71,6 +72,11 @@
         (vigra-load-rgba-image filename width height))
        (else
         (error "Not a GRAY, RGB nor an RGBA image" filename))))))
+
+(define (im-load-memory pointer memory-size width height)
+  (if (pointer? pointer)
+      (vigra-load-rgb-memory pointer memory-size width height)
+      (error "Not a filename and not a pointer" pointer)))
 
 (define* (im-save image filename #:optional (scale #f))
   (match image
@@ -125,6 +131,21 @@
       ((0) (list width height 1 (list c)))
       ((1) (error "Not a GRAY image" filename))
       ((2) (error "Sizes mismatch" filename)))))
+
+(define (vigra-load-rgb-memory pointer memory-size width height)
+  (let ((idata (im-make-channels width height 3)))
+    (match idata
+      ((r g b)
+       (case (vigra_importrgbmemory (bytevector->pointer r)
+                                    (bytevector->pointer g)
+                                    (bytevector->pointer b)
+                                    width
+                                    height
+                                    pointer
+                                    memory-size)
+         ((0) (list width height 3 idata))
+         ((1) (error "Not an RGB image" filename))
+         ((2) (error "Sizes mismatch" filename)))))))
 
 (define (vigra-load-rgb-image filename width height)
   (let ((idata (im-make-channels width height 3)))
@@ -226,6 +247,12 @@
 		      (dynamic-func "vigra_importgrayimage_c"
 				    %libvigra-c)
 		      (list '* int int '*)))
+
+(define vigra_importrgbmemory
+  (pointer->procedure int
+		      (dynamic-func "vigra_importrgbmemory_c"
+				    %libvigra-c)
+		      (list '* '* '* int int '* int)))
 
 (define vigra_importrgbimage
   (pointer->procedure int
