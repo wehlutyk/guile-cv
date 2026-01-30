@@ -62,7 +62,12 @@
               (setenv "LD_LIBRARY_PATH"
                       (string-append (assoc-ref inputs "vigra-c") "/lib")))))))
     (inputs
-     (list vigra vigra-c guile-3.0))
+     (list vigra
+           vigra-c
+           ;; (primitive-load
+           ;;  (string-append (dirname (dirname (current-filename)))
+           ;;                 "/vigra_c/guix.scm"))
+           guile-3.0))
     (native-inputs
      (list (texlive-local-tree
             (list texlive-booktabs
