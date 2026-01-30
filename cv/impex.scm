@@ -73,9 +73,9 @@
        (else
         (error "Not a GRAY, RGB nor an RGBA image" filename))))))
 
-(define (im-load-memory pointer memory-size width height)
+(define (im-load-memory pointer memory-size width height idata)
   (if (pointer? pointer)
-      (vigra-load-rgb-memory pointer memory-size width height)
+      (vigra-load-rgb-memory pointer memory-size width height idata)
       (error "Not a pointer" pointer)))
 
 (define* (im-save image filename #:optional (scale #f))
@@ -132,8 +132,8 @@
       ((1) (error "Not a GRAY image" filename))
       ((2) (error "Sizes mismatch" filename)))))
 
-(define (vigra-load-rgb-memory pointer memory-size width height)
-  (let ((idata (im-make-channels width height 3)))
+(define (vigra-load-rgb-memory pointer memory-size width height idata)
+  (let ((idata (or idata (im-make-channels width height 3))))
     (match idata
       ((r g b)
        (case (vigra_importrgbmemory (bytevector->pointer r)
