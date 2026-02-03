@@ -47,6 +47,7 @@
 		last)
 
   #:export (im-threshold
+            im-threshold!
             im-scrap
             im-scrap-channel
             im-and
@@ -83,6 +84,23 @@
 ;;;
 ;;; Guile-CV additional API
 ;;;
+
+(define* (im-threshold! image threshold to #:key (bg 'black))
+  (if (and (>= threshold 0.0)
+	       (<= threshold 255.0))
+      (match image
+        ((width height n-chan idata)
+         (let ((n-cell (* width height)))
+           (if (eq? (f32vector-length to) n-cell)
+               (list width height 1
+                     (list (f32vector-threshold to n-cell idata threshold
+                                                (case bg
+                                                  ((black) 0)
+                                                  ((white) 255)
+                                                  (else
+                                                   (error "No such bg: " bg))))))
+               (error "Invalid size for `to': " (f32vector-length to))))))
+      (error "Invalid threshold: " threshold)))
 
 (define* (im-threshold image threshold #:key (bg 'black))
   (if (and (>= threshold 0.0)
