@@ -88,7 +88,7 @@
                ;; so n-label is (+ n-object 1)
                (+ n-object 1))))))
 
-(define* (im-label-all image #:key (con 8))
+(define* (im-label-all image #:key (con 8) (to #f))
   ;; (im-binary? image) is rather expensive so we only check for n-chan
   (match image
     ((width height n-chan idata)
@@ -97,7 +97,7 @@
 	(match idata
 	  ((c)
 	   (receive (l-channel n-label)
-	       (im-label-all-channel c width height #:con con)
+	       (im-label-all-channel c width height #:con con #:to to)
 	     (values (list width height 1 (list l-channel))
 		     n-label)))))
 	       (else
