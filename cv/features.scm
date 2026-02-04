@@ -37,6 +37,7 @@
   #:use-module (cv support)
   #:use-module (cv idata)
   #:use-module (cv segmentation)
+  #:use-module (srfi srfi-11)
 
   #:duplicates (merge-generics
 		replace
@@ -45,6 +46,7 @@
 		last)
 
   #:export (im-features
+            im-features-raw!
 	    im-features-channel))
 
 
@@ -73,6 +75,24 @@
                 (error "Not a GRAY neither an RGB image.")))))))
        (else
         (error "Not a labeled image."))))))
+(define* (im-features-raw! image l-image features #:key (n-label #f))
+  (match l-image
+    ((_ _ _ l-idata)
+     (match l-idata
+       ((l-c)
+        (let ((n-label (or n-label
+                           (+ (float->int (f32vector-max l-c)) 1))))
+          (match image
+            ((width height n-chan idata)
+             (match idata
+               ((c)
+                (im-features-gray-raw! c l-c width height features #:n-label n-label))
+               ((r g b)
+                (im-features-rgb-raw! r g b l-c width height features #:n-label n-label))
+               (else
+                (error "Not a GRAY neither an RGB image.")))))))
+       (else
+        (error "Not a labeled image."))))))
 
 (define %vigra-feature-length-gray 22)
 
@@ -87,6 +107,16 @@
        (error "Features failed."))
       (else
        (vigra-features->list features n-label 'gray)))))
+(define* (im-features-gray-raw! channel l-c width height features #:key (n-label #f))
+  (let* ((n-label (or n-label
+		              (+ (float->int (f32vector-max l-c)) 1)))
+	     (result (vigra-extract-features-gray channel l-c
+                                              features width height n-label)))
+    (case result
+      ((1)
+       (error "Features failed."))
+      (else
+       (vigra-features-gray-raw! features n-label)))))
 
 (define %vigra-feature-length-rgb 34)
 
@@ -101,6 +131,16 @@
        (error "Features failed."))
       (else
        (vigra-features->list features n-label 'rgb)))))
+(define* (im-features-rgb-raw! r g b l-c width height features #:key (n-label #f))
+  (let* ((n-label (or n-label
+		              (+ (float->int (f32vector-max l-c)) 1)))
+	     (result (vigra-extract-features-rgb r g b l-c
+                                             features width height n-label)))
+    (case result
+      ((1)
+       (error "Features failed."))
+      (else
+       (vigra-features-rgb-raw! features n-label)))))
 
 (define (vigra-features->list features n-feature im-type)
   ;;
@@ -250,6 +290,41 @@
                    ;; roundness
                    ;; (/ (* 4 area) (* %pi (expt major-axis 2)))
                    (/ semi-minor-axis semi-major-axis)))))))))
+(define %j-area 0)
+(define %j-gray-major-ev-x 11)
+(define %j-gray-major-ev-y 12)
+(define %j-gray-minor-ev-x 13)
+(define %j-gray-minor-ev-y 14)
+(define %j-gray-major-axis 15)
+(define %j-gray-minor-axis 16)
+(define (vigra-features-gray-raw! features n-label)
+  (map (lambda (i)
+         (let*-values (((p) (* i %vigra-feature-length-gray))
+                       ((major-ev-trigo-x major-ev-trigo-y)
+                        (eigen-vigra-coord->trigono-coord
+                         (f32vector-ref features (+ p %j-gray-major-ev-x))
+                         (f32vector-ref features (+ p %j-gray-major-ev-y))))
+                       ((minor-ev-trigo-x minor-ev-trigo-y)
+                        (eigen-vigra-coord->trigono-coord
+                         (f32vector-ref features (+ p %j-gray-minor-ev-x))
+                         (f32vector-ref features (+ p %j-gray-minor-ev-y))))
+                       ((axis-optimization-factor)
+                        (ellipse-axis-optimization-factor
+                         (f32vector-ref features %j-gray-major-axis)
+                         (f32vector-ref features %j-gray-minor-axis)
+                         (f32vector-ref features %j-area)))
+                       ((semi-major-axis) (* (f32vector-ref features %j-gray-major-axis)
+                                             axis-optimization-factor))
+                       ((semi-minor-axis) (* (f32vector-ref features %j-gray-minor-axis)
+                                             axis-optimization-factor)))
+           (f32vector-set! features (+ p %j-gray-major-ev-x) major-ev-trigo-x)
+           (f32vector-set! features (+ p %j-gray-major-ev-y) major-ev-trigo-y)
+           (f32vector-set! features (+ p %j-gray-minor-ev-x) minor-ev-trigo-x)
+           (f32vector-set! features (+ p %j-gray-minor-ev-y) minor-ev-trigo-y)
+           (f32vector-set! features (+ p %j-gray-major-axis) semi-major-axis)
+           (f32vector-set! features (+ p %j-gray-minor-axis) semi-minor-axis)))
+       (iota n-label))
+  (values features n-label))
 
 (define %f-display-gray-format-str
   "\n                     area : ~A (pixels)
@@ -374,6 +449,40 @@
                    ;; roundness
                    ;; (/ (* 4 area) (* %pi (expt major-axis 2)))
                    (/ minor-axis major-axis)))))))))
+(define %j-rgb-major-ev-x 19)
+(define %j-rgb-major-ev-y 20)
+(define %j-rgb-minor-ev-x 21)
+(define %j-rgb-minor-ev-y 22)
+(define %j-rgb-major-axis 23)
+(define %j-rgb-minor-axis 24)
+(define (vigra-features-rgb-raw! features n-label)
+  (map (lambda (i)
+         (let*-values (((p) (* i %vigra-feature-length-rgb))
+                       ((major-ev-trigo-x major-ev-trigo-y)
+                        (eigen-vigra-coord->trigono-coord
+                         (f32vector-ref features (+ p %j-rgb-major-ev-x))
+                         (f32vector-ref features (+ p %j-rgb-major-ev-y))))
+                       ((minor-ev-trigo-x minor-ev-trigo-y)
+                        (eigen-vigra-coord->trigono-coord
+                         (f32vector-ref features (+ p %j-rgb-minor-ev-x))
+                         (f32vector-ref features (+ p %j-rgb-minor-ev-y))))
+                       ((axis-optimization-factor)
+                        (ellipse-axis-optimization-factor
+                         (f32vector-ref features %j-rgb-major-axis)
+                         (f32vector-ref features %j-rgb-minor-axis)
+                         (f32vector-ref features %j-area)))
+                       ((semi-major-axis) (* (f32vector-ref features %j-rgb-major-axis)
+                                             axis-optimization-factor))
+                       ((semi-minor-axis) (* (f32vector-ref features %j-rgb-minor-axis)
+                                             axis-optimization-factor)))
+           (f32vector-set! features (+ p %j-rgb-major-ev-x) major-ev-trigo-x)
+           (f32vector-set! features (+ p %j-rgb-major-ev-y) major-ev-trigo-y)
+           (f32vector-set! features (+ p %j-rgb-minor-ev-x) minor-ev-trigo-x)
+           (f32vector-set! features (+ p %j-rgb-minor-ev-y) minor-ev-trigo-y)
+           (f32vector-set! features (+ p %j-rgb-major-axis) semi-major-axis)
+           (f32vector-set! features (+ p %j-rgb-minor-axis) semi-minor-axis)))
+       (iota n-label))
+  (values features n-label))
 
 
 ;;;
