@@ -103,8 +103,8 @@
 	       (else
 	(error "Not a binary image."))))))
 
-(define* (im-label-all-channel channel width height #:key (con 8))
-  (let* ((to (im-make-channel width height))
+(define* (im-label-all-channel channel width height #:key (con 8) (to #f))
+  (let* ((to (or to (im-make-channel width height)))
 	 (n-object (vigra-label-all channel to width height con)))
     (case n-object
       ((-1)
