@@ -437,9 +437,9 @@
 ;;; Vigra_c bindings
 ;;;
 
-(define vigra_extractareapos_gray
+(define vigra_extractareabox_gray
   (pointer->procedure int
-		      (dynamic-func "vigra_extractareapos_gray_c"
+		      (dynamic-func "vigra_extractareabox_gray_c"
 				    %libvigra-c)
 		      (list '*     ;; from channel
 			    '*     ;; labels channel
