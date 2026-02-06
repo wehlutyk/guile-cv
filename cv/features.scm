@@ -46,8 +46,8 @@
 		last)
 
   #:export (im-features
-            im-area-pos-gray!
-            %vigra-area-pos-length-gray
+            im-area-box-gray!
+            %vigra-area-box-length-gray
 	    im-features-channel))
 
 
@@ -77,9 +77,9 @@
        (else
         (error "Not a labeled image."))))))
 
-(define %vigra-area-pos-length-gray 5)
+(define %vigra-area-box-length-gray 5)
 
-(define* (im-area-pos-gray! image l-image features #:key (n-label #f))
+(define* (im-area-box-gray! image l-image features #:key (n-label #f))
   (match l-image
     ((_ _ _ l-idata)
      (match l-idata
@@ -90,7 +90,7 @@
             ((width height n-chan idata)
              (match idata
                ((c)
-                (let ((result (vigra-extract-area-pos-gray
+                (let ((result (vigra-extract-area-box-gray
                                c l-c features width height n-label)))
                   (case result
                     ((1) (error "Features failed."))
@@ -406,8 +406,8 @@
 ;;; Guile vigra low level API
 ;;;
 
-(define (vigra-extract-area-pos-gray from labels results width height n-label)
-  (vigra_extractareapos_gray (bytevector->pointer from)
+(define (vigra-extract-area-box-gray from labels results width height n-label)
+  (vigra_extractareabox_gray (bytevector->pointer from)
                              (bytevector->pointer labels)
                              (bytevector->pointer results)
                              width
