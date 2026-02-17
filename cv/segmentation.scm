@@ -46,6 +46,8 @@
 	    im-label-channel
 	    im-label-all
 	    im-label-all-channel
+        im-label-all-s32channel
+        im-label-all-u32channel
             im-canny
             im-canny-channel
             im-crack-edge
@@ -106,6 +108,36 @@
 (define* (im-label-all-channel channel width height #:key (con 8) (to #f))
   (let* ((to (or to (im-make-channel width height)))
 	 (n-object (vigra-label-all channel to width height con)))
+    (case n-object
+      ((-1)
+       (error "Label failed."))
+      (else
+       (values to
+               ;; vigra returns the highest label value, which
+               ;; correspond to the number of object _but_ 0 is a label,
+               ;; so n-label is (+ n-object 1)
+               (+ n-object 1)
+               ;; n-object
+               )))))
+
+(define* (im-label-all-s32channel channel width height #:key (con 8) (to #f))
+  (let* ((to (or to (make-s32vector (* width height) 0)))
+	     (n-object (vigra-int-label-all channel to width height con)))
+    (case n-object
+      ((-1)
+       (error "Label failed."))
+      (else
+       (values to
+               ;; vigra returns the highest label value, which
+               ;; correspond to the number of object _but_ 0 is a label,
+               ;; so n-label is (+ n-object 1)
+               (+ n-object 1)
+               ;; n-object
+               )))))
+
+(define* (im-label-all-u32channel channel width height #:key (con 8) (to #f))
+  (let* ((to (or to (make-u32vector (* width height) 0)))
+	     (n-object (vigra-uint-label-all channel to width height con)))
     (case n-object
       ((-1)
        (error "Label failed."))
@@ -189,6 +221,28 @@
 		     (else
 		      (error "No such connectivity: " con)))))
 
+(define (vigra-int-label-all from to width height con)
+  (vigra_intlabel_all (bytevector->pointer from)
+		              (bytevector->pointer to)
+		              width
+		              height
+		              (case con
+		                ((8) 1)
+		                ((4) 0)
+		                (else
+		                 (error "No such connectivity: " con)))))
+
+(define (vigra-uint-label-all from to width height con)
+  (vigra_uintlabel_all (bytevector->pointer from)
+		               (bytevector->pointer to)
+		               width
+		               height
+		               (case con
+		                 ((8) 1)
+		                 ((4) 0)
+		                 (else
+		                  (error "No such connectivity: " con)))))
+
 (define (vigra-canny-edge-channel from to width height sigma threshold marker)
   (vigra_canny_edge_channel (bytevector->pointer from)
                             (bytevector->pointer to)
@@ -230,6 +284,26 @@
 			    int	     ;; width
 			    int	     ;; height
 			    int)))   ;; 8_con?
+
+(define vigra_intlabel_all
+  (pointer->procedure int
+		              (dynamic-func "vigra_intlabelimage_c"
+				                    %libvigra-c)
+		              (list '*	     ;; from channel
+			                '*	     ;; to channel
+			                int	     ;; width
+			                int	     ;; height
+			                int)))
+
+(define vigra_uintlabel_all
+  (pointer->procedure int
+		              (dynamic-func "vigra_uintlabelimage_c"
+				                    %libvigra-c)
+		              (list '*	     ;; from channel
+			                '*	     ;; to channel
+			                int	     ;; width
+			                int	     ;; height
+			                int)))
 
 (define vigra_canny_edge_channel
   (pointer->procedure int
