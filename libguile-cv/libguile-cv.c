@@ -23,6 +23,7 @@
 
 */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -286,6 +287,42 @@ int f32vector_threshold (float *to,
       }
       else {
         to[i] = 0.0;
+      }
+    }
+  }
+  return 0;
+}
+
+int u8vector_threshold (uint8_t *to,
+                        int n_cell,
+                        uint8_t *v_ptr[],
+                        int n_vectors,
+                        uint8_t threshold,
+                        int bg)
+{
+  int i, j;
+  int sum;
+
+  for (i = 0; i < n_cell; i++) {
+    sum = 0;
+    for (j = 0; j < n_vectors; j++) {
+      sum += v_ptr[j][i];
+    }
+    sum = (int)round((float)sum / n_vectors);
+    if (bg == 0) {
+      if (sum >= threshold) {
+        to[i] = 255;
+      }
+      else {
+        to[i] = 0;
+      }
+    }
+    else {
+      if (sum <= threshold) {
+        to[i] = 255;
+      }
+      else {
+        to[i] = 0;
       }
     }
   }

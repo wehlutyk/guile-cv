@@ -48,6 +48,7 @@
 
   #:export (im-threshold
             im-threshold!
+            im-u8-threshold
             im-scrap
             im-scrap-channel
             im-and
@@ -99,6 +100,28 @@
                                                   ((white) 255)
                                                   (else
                                                    (error "No such bg: " bg))))))
+               (error "Invalid size for `to': " (f32vector-length to))))))
+      (error "Invalid threshold: " threshold)))
+
+;; TODO
+;; (define* (im-u8-threshold-rgb image threshold #:key (bg 'black) (to #f))
+;;   )
+
+(define* (im-u8-threshold image threshold #:key (bg 'black) (to #f))
+  (if (and (>= threshold 0)
+	       (<= threshold 255))
+      (match image
+        ((width height n-chan idata)
+         (let* ((n-cell (* width height))
+                (to (or to (make-u8vector n-cell 0))))
+           (if (eq? (u8vector-length to) n-cell)
+               (list width height 1
+                     (list (u8vector-threshold to n-cell idata threshold
+                                               (case bg
+                                                 ((black) 0)
+                                                 ((white) 255)
+                                                 (else
+                                                  (error "No such bg: " bg))))))
                (error "Invalid size for `to': " (f32vector-length to))))))
       (error "Invalid threshold: " threshold)))
 

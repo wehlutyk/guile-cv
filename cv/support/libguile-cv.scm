@@ -74,6 +74,9 @@
             f32vector_to_s32vector
             f32vector_delineate
 
+            ;; u8vectors
+            u8vector_threshold
+
             ;; glcm
             glcm_c))
 
@@ -392,6 +395,22 @@
                             int		;; n_cell
                             int		;; threshold
                             '*)))	;; to
+
+
+;;;
+;;; u8vectors
+;;;
+
+(define u8vector_threshold
+  (pointer->procedure int
+                      (dynamic-func "u8vector_threshold"
+                                    %libguile-cv)
+                      (list '*		;; to
+                            int		;; n_cell
+                            '*		;; v_ptr[]
+                            int		;; n_vectors
+                            int 	;; threshold
+                            int)))
 
 
 ;;;
