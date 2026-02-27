@@ -76,6 +76,7 @@
 
             ;; u8vectors
             u8vector_threshold
+            rgb_u8vector_threshold
 
             ;; glcm
             glcm_c))
@@ -400,6 +401,17 @@
 ;;;
 ;;; u8vectors
 ;;;
+
+(define rgb_u8vector_threshold
+  (pointer->procedure int
+                      (dynamic-func "rgb_u8vector_threshold"
+                                    %libguile-cv)
+                      (list '*		;; to
+                            int		;; n_cell
+                            '*		;; v_ptr[]
+                            int		;; n_vectors
+                            int 	;; threshold
+                            int)))
 
 (define u8vector_threshold
   (pointer->procedure int

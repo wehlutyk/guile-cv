@@ -156,22 +156,25 @@
                            bg)
       to)))
 
-(define (u8vector-threshold to n-cell channels threshold bg)
+(define (u8vector-threshold to n-cell channels threshold rgb? bg)
   (receive (maker setter!)
       (get-v-ptr-maker-setter)
     (let* ((n-chan (length channels))
-           (v-ptr (maker n-chan 0)))
+           (v-ptr (maker n-chan 0))
+           (rgb?_u8vector_threshold (if rgb?
+                                        rgb_u8vector_threshold
+                                        u8vector_threshold)))
       (for-each (lambda (chan i)
                   (setter! v-ptr i
                            (pointer-address (bytevector->pointer chan))))
                 channels
                 (iota n-chan))
-      (u8vector_threshold (bytevector->pointer to)
-                          n-cell
-                          (bytevector->pointer v-ptr)
-                          n-chan
-                          threshold
-                          bg)
+      (rgb?_u8vector_threshold (bytevector->pointer to)
+                               n-cell
+                               (bytevector->pointer v-ptr)
+                               n-chan
+                               threshold
+                               bg)
       to)))
 
 (define (f32vector-fill-holes l-channel n-cell bg-label)

@@ -119,6 +119,13 @@ int f32vector_threshold (float *to,
                          float threshold
                          int bg);
 
+int rgb_u8vector_threshold (uint8_t *to,
+                            int n_cell,
+                            uint8_t *v_ptr[],
+                            int n_vectors,
+                            uint8_t threshold,
+                            int bg);
+
 int u8vector_threshold (uint8_t *to,
                         int n_cell,
                         uint8_t *v_ptr[],

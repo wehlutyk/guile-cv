@@ -293,6 +293,46 @@ int f32vector_threshold (float *to,
   return 0;
 }
 
+int rgb_u8vector_threshold (uint8_t *to,
+                            int n_cell,
+                            uint8_t *v_ptr[],
+                            int n_vectors,
+                            uint8_t threshold,
+                            int bg)
+{
+  int i, j;
+  int sum;
+  int rgb_i;
+
+  for (i = 0; i < n_cell; i++) {
+    sum = 0;
+    rgb_i = 3 * i;
+    for (j = 0; j < n_vectors; j++) {
+        sum += v_ptr[j][rgb_i];
+        sum += v_ptr[j][rgb_i+1];
+        sum += v_ptr[j][rgb_i+2];
+    }
+    sum = (int)round((float)sum / (3 * n_vectors));
+    if (bg == 0) {
+      if (sum >= threshold) {
+        to[i] = 255;
+      }
+      else {
+        to[i] = 0;
+      }
+    }
+    else {
+      if (sum <= threshold) {
+        to[i] = 255;
+      }
+      else {
+        to[i] = 0;
+      }
+    }
+  }
+  return 0;
+}
+
 int u8vector_threshold (uint8_t *to,
                         int n_cell,
                         uint8_t *v_ptr[],
