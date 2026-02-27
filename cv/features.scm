@@ -47,6 +47,7 @@
 
   #:export (im-features
             im-area-box-gray!
+            im-gray-u8-area-box-u32!
             %vigra-area-box-length-gray
 	    im-features-channel))
 
@@ -97,6 +98,25 @@
                     (else result))              ))
                (else
                 (error "Not a GRAY image.")))))))
+       (else
+        (error "Not a labeled image."))))))
+
+(define* (im-gray-u8-area-box-u32! image l-image features n-label)
+  (match l-image
+    ((_ _ _ l-idata)
+     (match l-idata
+       ((l-c)
+        (match image
+          ((width height n-chan idata)
+           (match idata
+             ((c)
+              (let ((result (vigra-gray-u8-extract-area-box-u32
+                             c l-c features width height n-label)))
+                (case result
+                  ((1) (error "Features failed."))
+                  (else result))              ))
+             (else
+              (error "Not a GRAY image."))))))
        (else
         (error "Not a labeled image."))))))
 
@@ -406,6 +426,14 @@
 ;;; Guile vigra low level API
 ;;;
 
+(define (vigra-gray-u8-extract-area-box-u32 from labels results width height n-label)
+  (vigra_gray_u8_extractareabox_u32 (bytevector->pointer from)
+                                    (bytevector->pointer labels)
+                                    (bytevector->pointer results)
+                                    width
+                                    height
+                                    (- n-label 1)))
+
 (define (vigra-extract-area-box-gray from labels results width height n-label)
   (vigra_extractareabox_gray (bytevector->pointer from)
                              (bytevector->pointer labels)
@@ -436,6 +464,17 @@
 ;;;
 ;;; Vigra_c bindings
 ;;;
+
+(define vigra_gray_u8_extractareabox_u32
+  (pointer->procedure int
+		      (dynamic-func "vigra_gray_u8_extractareabox_u32_c"
+				    %libvigra-c)
+		      (list '*     ;; from channel
+			    '*     ;; labels channel
+			    '*     ;; results vector
+			    int    ;; width
+			    int    ;; height
+			    int)))
 
 (define vigra_extractareabox_gray
   (pointer->procedure int
