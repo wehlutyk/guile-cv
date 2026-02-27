@@ -46,6 +46,7 @@
 	    im-label-channel
 	    im-label-all
 	    im-label-all-channel
+        im-label-all-u8->u32
         im-label-all-u8channel->u32channel
             im-canny
             im-canny-channel
@@ -118,6 +119,22 @@
                (+ n-object 1)
                ;; n-object
                )))))
+
+(define* (im-label-all-u8->u32 image #:key (con 8) (to #f) (to-tmp #f))
+  ;; (im-binary? image) is rather expensive so we only check for n-chan
+  (match image
+    ((width height n-chan idata)
+     (case n-chan
+       ((1)
+	    (match idata
+	      ((c)
+	       (receive (l-channel n-label)
+	           (im-label-all-u8channel->u32channel c width height
+                                                   #:con con #:to to #:to-tmp to-tmp)
+	         (values (list width height 1 (list l-channel))
+		             n-label)))))
+	   (else
+	    (error "Not a binary image."))))))
 
 (define* (im-label-all-u8channel->u32channel channel width height #:key (con 8) (to #f) (to-tmp #f))
   (let* ((size (* width height))
